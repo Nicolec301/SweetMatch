@@ -50,3 +50,16 @@ intereses:musica,viajes,arte
 descripcion:Soy alto
 foto:1749479906_0944d687-f1df-4727-bafe-cf46e6d5ee2d.png
 ---
+nombre:Rayson
+apellido:Lopez
+email:stevenl32003@hotmail.com
+password:$2y$10$NuWcfIutk39pakIb8m3NUeIDDPQrCOSeqGZPrjOyGGIormGahR7Ly
+edad:21
+genero:hombre
+genero_busco:mujeres
+edad_min_busco:23
+edad_max_busco:27
+intereses:musica,viajes,arte
+descripcion:ads
+foto:1749748549_0944d687-f1df-4727-bafe-cf46e6d5ee2d.png
+---

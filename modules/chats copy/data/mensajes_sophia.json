@@ -5,5 +5,26 @@
         "contenido": "hi",
         "hora": "16:54",
         "leido": false
+    },
+    {
+        "emisor": "T\u00fa",
+        "remitente": true,
+        "contenido": "yo",
+        "hora": "19:16",
+        "leido": false
+    },
+    {
+        "emisor": "T\u00fa",
+        "remitente": true,
+        "contenido": "hola, como estas?",
+        "hora": "21:12",
+        "leido": false
+    },
+    {
+        "emisor": "T\u00fa",
+        "remitente": true,
+        "contenido": "barriendo sin escobaaaaaa",
+        "hora": "17:25",
+        "leido": false
     }
 ]
