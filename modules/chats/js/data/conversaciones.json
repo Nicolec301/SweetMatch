@@ -1,0 +1,164 @@
+{
+  "sophia": {
+    "nombre": "Sofía Martínez",
+    "imagen": "../../images/Sofia.png",
+    "vista_previa": "¿Cuál película piensas ver?",
+    "tiempo_indicador": "2h",
+    "ultima_actividad": "En línea",
+    "mensajes": [
+      {
+        "id": 1,
+        "contenido": "¡Hola! ¿Cómo va tu día?",
+        "hora": "14:30",
+        "remitente": false,
+        "emisor": "Sofía",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 2,
+        "contenido": "¡Hola Sofía! Bastante bien, acabo de terminar un ejercicio. ¿Y el tuyo?",
+        "hora": "14:35",
+        "remitente": true,
+        "emisor": "Tú",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 3,
+        "contenido": "¡Genial! El mío también va muy bien. ¿Te gusta el ejercicio?",
+        "hora": "14:40",
+        "remitente": false,
+        "emisor": "Sofía",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 4,
+        "contenido": "Sí, me encanta! Voy al gimnasio casi todos los días 💪",
+        "hora": "14:42",
+        "remitente": true,
+        "emisor": "Tú",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 5,
+        "contenido": "¡Qué bueno! Yo también soy muy activa. ¿Qué tipo de ejercicio prefieres?",
+        "hora": "14:45",
+        "remitente": false,
+        "emisor": "Sofía",
+        "leido": true,
+        "tipo": "texto"
+      }
+    ]
+  },
+  "andre": {
+    "nombre": "André González",
+    "imagen": "../../images/andres.png",
+    "vista_previa": "¿Te gustaría salir este fin de semana?",
+    "tiempo_indicador": "1d",
+    "ultima_actividad": "Hace 2 horas",
+    "mensajes": [
+      {
+        "id": 1,
+        "contenido": "Hey! ¿Cómo va todo?",
+        "hora": "12:15",
+        "remitente": false,
+        "emisor": "André",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 2,
+        "contenido": "¡Hola André! Todo bien por aquí, ¿y tú qué tal?",
+        "hora": "12:20",
+        "remitente": true,
+        "emisor": "Tú",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 3,
+        "contenido": "Muy bien! He estado pensando... ¿te gustaría salir este fin de semana?",
+        "hora": "12:25",
+        "remitente": false,
+        "emisor": "André",
+        "leido": true,
+        "tipo": "texto"
+      }
+    ]
+  },
+  "laura": {
+    "nombre": "Laura Sánchez",
+    "imagen": "../../images/laura.png",
+    "vista_previa": "Gracias por el match! 💕",
+    "tiempo_indicador": "3d",
+    "ultima_actividad": "Hace 1 día",
+    "mensajes": [
+      {
+        "id": 1,
+        "contenido": "¡Hola! Gracias por el match! 💕",
+        "hora": "20:45",
+        "remitente": false,
+        "emisor": "Laura",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 2,
+        "contenido": "¡Hola Laura! ¡Qué bueno conectar contigo! 😊",
+        "hora": "20:50",
+        "remitente": true,
+        "emisor": "Tú",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 3,
+        "contenido": "Me encanta tu perfil, tienes muy buen gusto musical 🎵",
+        "hora": "20:52",
+        "remitente": false,
+        "emisor": "Laura",
+        "leido": true,
+        "tipo": "texto"
+      }
+    ]
+  },
+  "tomas": {
+    "nombre": "Tomás Rivera",
+    "imagen": "../../images/tomas.png",
+    "vista_previa": "¿Conoces algún buen restaurante?",
+    "tiempo_indicador": "1w",
+    "ultima_actividad": "Hace 3 días",
+    "mensajes": [
+      {
+        "id": 1,
+        "contenido": "Hola! Vi que también te gusta la comida italiana 🍝",
+        "hora": "19:30",
+        "remitente": false,
+        "emisor": "Tomás",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 2,
+        "contenido": "¡Sí! Es mi favorita. ¿Tienes algún restaurante recomendado?",
+        "hora": "19:35",
+        "remitente": true,
+        "emisor": "Tú",
+        "leido": true,
+        "tipo": "texto"
+      },
+      {
+        "id": 3,
+        "contenido": "¡Por supuesto! Conozco uno increíble en el centro. ¿Conoces algún buen restaurante?",
+        "hora": "19:40",
+        "remitente": false,
+        "emisor": "Tomás",
+        "leido": true,
+        "tipo": "texto"
+      }
+    ]
+  }
+}

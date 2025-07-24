@@ -1,52 +1,3 @@
-<?php
-// filepath: c:\xampp\htdocs\SweetMatchProto\modules\chats\chats.php
-session_start();
-if (!isset($_SESSION['usuario'])) {
-    header("Location: ../login/login.html");
-    exit();
-}
-$usuario = $_SESSION['usuario'];
-
-// Incluir el archivo de conversaciones
-require_once 'data/conversaciones.php';
-
-// Obtener todas las conversaciones
-$todas_conversaciones = obtener_todas_conversaciones();
-
-// Verificar si se ha seleccionado una conversación específica
-$conversacion_id = isset($_GET['id']) ? $_GET['id'] : 'sophia'; // Por defecto muestra la conversación con Sofía
-
-// Obtener datos de la conversación seleccionada
-$conversacion_actual = obtener_conversacion($conversacion_id);
-
-// Si la conversación no existe, redirigir a la primera conversación
-if ($conversacion_actual === null) {
-    header('Location: chats.php?id=sophia');
-    exit;
-}
-
-// Verificar si hay mensajes de confirmación o error
-$mensaje_confirmacion = '';
-$mensaje_error = '';
-$clase_notificacion = '';
-
-if (isset($_GET['success']) && $_GET['success'] === 'mensaje_enviado') {
-    $mensaje_confirmacion = 'Mensaje enviado correctamente';
-    $clase_notificacion = 'success';
-} elseif (isset($_GET['error'])) {
-    switch ($_GET['error']) {
-        case 'mensaje_vacio':
-            $mensaje_error = 'El mensaje no puede estar vacío';
-            break;
-        case 'error_guardado':
-            $mensaje_error = 'Error al guardar el mensaje';
-            break;
-        default:
-            $mensaje_error = 'Ha ocurrido un error al enviar el mensaje';
-    }
-    $clase_notificacion = 'error';
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -63,6 +14,9 @@ if (isset($_GET['success']) && $_GET['success'] === 'mensaje_enviado') {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Preload critical assets -->
     <link rel="preload" href="../../images/logo.svg" as="image">
+    <!-- Chat JavaScript Files -->
+    <script src="js/chat-config.js"></script>
+    <script src="js/chat-utils.js"></script>
 </head>
 
 <body>
@@ -255,7 +209,10 @@ if (isset($_GET['success']) && $_GET['success'] === 'mensaje_enviado') {
         <div class="copyright">
             <p>&copy;2025 SweetMatch. Todos los derechos reservados.</p>
         </div>
-    </footer>  
+    </footer>
+    
+    <!-- Chat JavaScript -->
+    <script src="js/chat-manager.js"></script>
 </body>
 
 </html>
