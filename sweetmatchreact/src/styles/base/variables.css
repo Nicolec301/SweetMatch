@@ -1,0 +1,72 @@
+/* ===== SWEETMATCH - VARIABLES GLOBALES ===== */
+
+:root {
+  /* Esquema de colores principales */
+  --primary: #ff3368;
+  --primary-light: #ff6b8e;
+  --primary-dark: #ff3368;
+  --accent: #ffd9df;
+  --text-dark: #333;
+  --text-light: #fff;
+  
+  /* Sistema de sombras */
+  --shadow: 0 4px 12px rgba(227, 27, 84, 0.15);
+  --shadow-large: 0 8px 24px rgba(227, 27, 84, 0.2);
+  
+  /* Radios y bordes */
+  --radius: 16px;
+  --radius-small: 8px;
+  
+  /* Transiciones */
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --max-width: 1200px;
+  
+  /* Fondos */
+  --bg-gradient: linear-gradient(135deg, #ffe4e9 0%, #ff91ae 100%);
+  --card-bg: #ffffff;
+  --header-bg: rgba(227, 27, 84, 0.95);
+  --footer-bg: #ff869f;
+}
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: var(--primary) var(--accent);
+}
+
+/* Estilos de la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+  border: 3px solid var(--accent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Estilos base del body */
+body {
+  background: #ffffff;
+  background-attachment: fixed;
+  font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+}

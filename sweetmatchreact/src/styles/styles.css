@@ -1,0 +1,261 @@
+/* ===== IMPORTACIONES DE COMPONENTES ===== */
+@import './base/variables.css';
+@import './components/buttons.css';
+@import './components/hero.css';
+@import './components/cards.css';
+@import './components/layout.css';
+@import './components/forms.css';
+@import './components/utilities.css';
+
+/* ===== ESTILOS ESPECÍFICOS ADICIONALES ===== */
+
+/* Clase para centrar divs */
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.center-block {
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* FEATURES SECTION */
+.features {
+  padding: 4rem 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* PASOS SECTION */
+.pasos {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--accent) 0%, #fff 100%);
+}
+
+.pasos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* MATCHES SECTION - PERFILES DESTACADOS */
+.matches {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8f9ff 0%, #fff0f6 100%);
+}
+
+.matches h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  color: var(--primary-dark);
+}
+
+.matches p {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* TESTIMONIALS SECTION */
+.testimonials {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, var(--accent) 0%, #fff 100%);
+}
+
+.testimonials-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+/* CALL TO ACTION SECTION */
+.cta-section {
+  padding: 4rem 0;
+  background: var(--bg-gradient);
+  color: white;
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cta-section p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+/* CHAT STYLES */
+.chat-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.chat-messages {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.message.sent {
+  flex-direction: row-reverse;
+}
+
+.message.sent .message-content {
+  background: var(--primary);
+  color: white;
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+}
+
+.message-content {
+  background: var(--accent);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  max-width: 70%;
+  color: var(--text-dark);
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 0.25rem;
+}
+
+.chat-input {
+  display: flex;
+  gap: 0.75rem;
+  background: white;
+  padding: 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-small);
+  font-size: 1rem;
+}
+
+.chat-input input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(255, 51, 104, 0.1);
+}
+
+.chat-input button {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.chat-input button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .features-grid,
+  .pasos-grid {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
+
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section h2 {
+    font-size: 2rem;
+  }
+
+  .chat-input {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .message-content {
+    max-width: 85%;
+  }
+}
+
+@media (max-width: 480px) {
+  .features,
+  .pasos,
+  .matches,
+  .testimonials,
+  .cta-section {
+    padding: 2rem 0;
+  }
+
+  .cta-section h2 {
+    font-size: 1.75rem;
+  }
+
+  .chat-messages {
+    padding: 1rem;
+  }
+
+  .message-content {
+    max-width: 90%;
+  }
+}
