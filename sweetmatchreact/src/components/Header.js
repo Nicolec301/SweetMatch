@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../images/logo.svg';
+import '../styles/components/header.css';
 
 const Header = () => {
   return (
     <header>
       <div className="logo">
-        <img src="/images/logo.svg" alt="SweetMatch Logo" />
+        <img src={logo} alt="SweetMatch Logo" />
       </div>
       <nav aria-label="Navegación principal">
         <ul>

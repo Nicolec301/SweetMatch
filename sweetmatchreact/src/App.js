@@ -6,11 +6,7 @@ import Register from './pages/Register';
 
 // Importar estilos
 import './styles/styles.css';
-import './styles/components/header.css';
-import './styles/components/footer.css';
-import './styles/modules/login/formulario.css';
-import './styles/modules/crearCuenta/formularioCrear.css';
-import './styles/modules/crearCuenta/multi-step-form.css';
+
 function App() {
   return (
     <Router>

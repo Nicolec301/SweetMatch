@@ -2,6 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import I_Foto0 from '../images/I_Foto0.jpg';
+import I_Foto1 from '../images/I_Foto1.jpg';
+import I_Foto2 from '../images/I_Foto2.jpg';
+import I_Foto3 from '../images/I_Foto3.jpg';
+import I_Foto4 from '../images/I_Foto4.jpg';
+import andres from '../images/andres.png';
+import Sofia from '../images/Sofia.png';
+import tomas from '../images/tomas.png';
+import laura from '../images/laura.png';
+import JessicaMark from '../images/JessicaMark.png';
+import CarlosAna from '../images/CarlosAna.png';
+import Escribir from '../images/Escribir.png';
 
 const Home = () => {
   return (
@@ -24,11 +36,11 @@ const Home = () => {
         </div>
         <div className="hero-images">
           <div className="slider" aria-label="Galería de imágenes" aria-live="polite">
-            <img src="/images/I_Foto0.jpg" alt="Pareja feliz en una cita romántica" loading="lazy" />
-            <img src="/images/I_Foto1.jpg" alt="Disfrutando juntos en el parque" loading="lazy" />
-            <img src="/images/I_Foto2.jpg" alt="Sonrisas bajo el sol en la playa" loading="lazy" />
-            <img src="/images/I_Foto3.jpg" alt="Celebrando su aniversario con alegría" loading="lazy" />
-            <img src="/images/I_Foto4.jpg" alt="Puesta de sol en una cita especial" loading="lazy" />
+            <img src={I_Foto0} alt="Pareja feliz en una cita romántica" loading="lazy" />
+            <img src={I_Foto1} alt="Disfrutando juntos en el parque" loading="lazy" />
+            <img src={I_Foto2} alt="Sonrisas bajo el sol en la playa" loading="lazy" />
+            <img src={I_Foto3} alt="Celebrando su aniversario con alegría" loading="lazy" />
+            <img src={I_Foto4} alt="Puesta de sol en una cita especial" loading="lazy" />
           </div>
         </div>
       </section>
@@ -47,7 +59,8 @@ const Home = () => {
         <div className="profiles-container" aria-label="Perfiles destacados">
           <div className="profile-card" tabIndex="0">
             <div className="profile-image-wrapper">
-              <img src="/images/andres.png" alt="" aria-hidden="true" />
+              <img src={andres} alt="Foto de perfil de Andrés" />
+              <div className="star-badge">★</div>
             </div>
             <div className="profile-info">
               <h3>ANDRÉS, 28 AÑOS</h3>
@@ -56,9 +69,10 @@ const Home = () => {
             <span className="sr-only">Andrés, 28 años, apasionado de la fotografía y los viajes.</span>
           </div>
 
-          <div className="profile-card" tabIndex="0">
+          <div className="profile-card featured" tabIndex="0">
             <div className="profile-image-wrapper">
-              <img src="/images/Sofia.png" alt="" aria-hidden="true" />
+              <img src={Sofia} alt="Foto de perfil de Sofía" />
+              <div className="star-badge">★</div>
             </div>
             <div className="profile-info">
               <h3>SOFÍA, 27 AÑOS</h3>
@@ -69,7 +83,8 @@ const Home = () => {
 
           <div className="profile-card" tabIndex="0">
             <div className="profile-image-wrapper">
-              <img src="/images/tomas.png" alt="" aria-hidden="true" />
+              <img src={tomas} alt="Foto de perfil de Tomás" />
+              <div className="star-badge">★</div>
             </div>
             <div className="profile-info">
               <h3>TOMÁS, 32 AÑOS</h3>
@@ -80,7 +95,8 @@ const Home = () => {
 
           <div className="profile-card" tabIndex="0">
             <div className="profile-image-wrapper">
-              <img src="/images/laura.png" alt="" aria-hidden="true" />
+              <img src={laura} alt="Foto de perfil de Laura" />
+              <div className="star-badge">★</div>
             </div>
             <div className="profile-info">
               <h3>LAURA, 29 AÑOS</h3>
@@ -92,33 +108,31 @@ const Home = () => {
       </section>
 
       {/* Testimonios/Experiencias */}
-      <section id="experiencias" className="section-light glassmorphism slide-up">
-        <div className="section-header">
-          <div className="section-title">
-            <h2>Experiencias</h2>
-            <p>Aprende de sus experiencias y atrévete a ser parte de esta historia. ¡Destácate y aumenta tus posibilidades de encontrar a tu persona especial!</p>
-          </div>
+      <section id="experiencias" className="experiencias-section">
+        <div className="experiencias-header">
+          <h1 className="experiencias-title">Experiencias</h1>
+          <p className="experiencias-subtitle">Aprende de sus experiencias y atrévete a ser parte de esta historia. ¡Destácate y aumenta tus posibilidades de encontrar a tu persona especial!</p>
         </div>
-        <div className="section-subtitle">
-          <h2>¿Quieres compartir tu historia?</h2>
-          <p>Contáctanos y permítenos ser parte de tu camino hacia el amor verdadero. ¡Estamos aquí para ayudarte!</p>
+        <div className="compartir-historia">
+          <h2 className="compartir-title">¿Quieres compartir tu historia?</h2>
+          <p className="compartir-subtitle">Contáctanos y permítenos ser parte de tu camino hacia el amor verdadero. ¡Estamos aquí para ayudarte!</p>
         </div>
         <div className="testimonials" aria-label="Testimonios de usuarios">
           <div className="testimonial">
-            <img src="/images/JessicaMark.png" alt="Jessica y Mark" className="testimonial-image" />
+            <img src={JessicaMark} alt="Jessica y Mark" className="testimonial-image" />
             <div className="testimonial-content">
-              <p>"Gracias a SweetMatch, conocí a mi mejor amigo y compañero de vida. Realmente se preocupan por ayudar a las personas a encontrar el amor. ¡Si estás aquí, estás en el lugar correcto!"</p>
-              <h4>— Jessica & Mark</h4>
+              <p><i>"Gracias a SweetMatch, conocí a mi mejor amigo y compañero de vida. Realmente se preocupan por ayudar a las personas a encontrar el amor. ¡Si estás aquí, estás en el lugar correcto!"</i></p>
+              <h4>Jessica & Mark</h4>
             </div>
-            <img src="/images/Escribir.png" alt="" className="heart-icon" aria-hidden="true" />
+            <img src={Escribir} alt="Icono de corazón" className="heart-icon" />
           </div>
           <div className="testimonial">
-            <img src="/images/CarlosAna.png" alt="Carlos y Ana" className="testimonial-image" />
+            <img src={CarlosAna} alt="Carlos y Ana" className="testimonial-image" />
             <div className="testimonial-content">
-              <p>"Encontré a alguien que realmente entiende y comparte mis sueños. SweetMatch me ayudó a dar el primer paso."</p>
-              <h4>— Carlos & Ana</h4>
+              <p><i>"Encontré a alguien que realmente entiende y comparte mis sueños. SweetMatch me ayudó a dar el primer paso."</i></p>
+              <h4>Carlos & Ana</h4>
             </div>
-            <img src="/images/Escribir.png" alt="" className="heart-icon" aria-hidden="true" />
+            <img src={Escribir} alt="Icono de corazón" className="heart-icon" />
           </div>
         </div>
       </section>
@@ -182,3 +196,4 @@ const Home = () => {
 };
 
 export default Home;
+

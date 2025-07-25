@@ -378,7 +378,7 @@ body, .hero {
   color: var(--primary-dark);
   margin-bottom: 1rem;
 }
-
+  
 .heart-icon {
   width: 80px;
   animation: float 3s ease-in-out infinite;

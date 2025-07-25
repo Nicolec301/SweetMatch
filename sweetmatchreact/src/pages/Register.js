@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import GifCora from '../images/GifCora.webp';
+import '../styles/modules/crearCuenta/formularioCrear.css';
+import '../styles/modules/crearCuenta/multi-step-form.css';
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -318,7 +321,7 @@ const Register = () => {
       {/* Formulario */}
       <div className="form-container">
         <div className="form-header">
-          <img src="/images/GifCora.webp" alt="Corazón" className="heart-icon" />
+          <img src={GifCora} alt="Corazón" className="heart-icon" />
           <h1>Registro en <span>SweetMatch</span></h1>
           <p>¡Únete a nuestra comunidad y encuentra el amor verdadero!</p>
         </div>
@@ -361,3 +364,4 @@ const Register = () => {
 };
 
 export default Register;
+

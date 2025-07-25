@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import GifCora from '../images/GifCora.webp';
+import '../styles/modules/login/formulario.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +43,7 @@ const Login = () => {
       {/* Formulario de Login */}
       <div className="form-container">
         <div className="form-header">
-          <img src="/images/GifCora.webp" alt="Corazón" className="heart-icon" />
+          <img src={GifCora} alt="Corazón" className="heart-icon" />
           <h1>Iniciar Sesión en <span>SweetMatch</span></h1>
           <p>¡Bienvenido de nuevo al amor!</p>
         </div>
