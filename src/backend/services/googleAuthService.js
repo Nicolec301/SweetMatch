@@ -7,7 +7,8 @@ import { GOOGLE_CLIENT_ID } from '../../config';
 const initializeGoogleAuth = () => {
   // Verificar que tenemos un ID de cliente válido
   if (!GOOGLE_CLIENT_ID) {
-    console.error('No se ha configurado correctamente el ID de cliente de Google');
+    console.error('ERROR: No se ha configurado el ID de cliente de Google en las variables de entorno.');
+    console.error('Por favor, asegúrate de que el archivo .env contiene REACT_APP_GOOGLE_CLIENT_ID.');
     return false;
   }
 

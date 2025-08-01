@@ -1,25 +1,22 @@
 // Archivo principal de configuración
-// Versión simplificada que no depende de dotenv ni módulos de Node.js
+// Versión que utiliza exclusivamente variables de entorno de .env
 
 // En desarrollo, mostramos información de depuración
 if (process.env.NODE_ENV !== 'production') {
-  console.log('Variables de entorno en config:', {
-    GOOGLE_CLIENT_ID: process.env.REACT_APP_GOOGLE_CLIENT_ID || '(no definido)',
-    REDIRECT_URI: process.env.REACT_APP_REDIRECT_URI || '(no definido)'
+  console.log('Variables de entorno cargadas en config:', {
+    GOOGLE_CLIENT_ID: process.env.REACT_APP_GOOGLE_CLIENT_ID ? 'Configurado' : 'No configurado',
+    REDIRECT_URI: process.env.REACT_APP_REDIRECT_URI ? 'Configurado' : 'No configurado'
   });
 }
 
-// Valor hardcodeado de respaldo (solo para desarrollo)
-const BACKUP_CLIENT_ID = '780446462718-jg6dloll2f832j07alrmue75b4dkipc9.apps.googleusercontent.com';
-
-// Configuración unificada basada en variables de entorno
+// Configuración unificada basada exclusivamente en variables de entorno
 const config = {
   google: {
-    // Usa la variable de entorno REACT_APP_GOOGLE_CLIENT_ID con respaldo explícito
-    clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID || BACKUP_CLIENT_ID,
+    // Usa solo la variable de entorno sin respaldo hardcodeado
+    clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
     
-    // Usa la variable de entorno REACT_APP_REDIRECT_URI con respaldo
-    redirectUri: process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000',
+    // Usa solo la variable de entorno sin respaldo hardcodeado
+    redirectUri: process.env.REACT_APP_REDIRECT_URI,
     
     // Scopes estándar para autenticación con Google
     scopes: [
