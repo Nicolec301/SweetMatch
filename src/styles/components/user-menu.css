@@ -1,0 +1,167 @@
+/* Estilos para el menú de usuario en el header */
+
+.user-menu {
+    display: flex;
+    align-items: center;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-login, .btn-register {
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-login {
+    color: white;
+    border: 1px solid white;
+    background-color: transparent;
+}
+
+.btn-login:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-register {
+    color: var(--primary);
+    background-color: white;
+    border: 1px solid white;
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para usuario autenticado */
+.user-profile {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.user-info:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.user-name {
+    color: white;
+    font-weight: 500;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.user-profile:hover .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-dropdown li {
+    padding: 0;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+    display: block;
+    padding: 12px 15px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.user-dropdown a:hover,
+.user-dropdown button:hover {
+    background-color: rgba(255, 134, 159, 0.1);
+    color: var(--primary);
+}
+
+.user-dropdown li:first-child a {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.user-dropdown li:last-child a,
+.user-dropdown li:last-child button {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+/* Estilo para botón de cerrar sesión */
+.user-dropdown button {
+    color: #e53935;
+    font-weight: 500;
+}
+
+.user-dropdown button:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+    color: #e53935;
+}
+
+/* Indicador de carga */
+.loading-spinner {
+    color: white;
+    font-size: 14px;
+    padding: 10px;
+    text-align: center;
+}

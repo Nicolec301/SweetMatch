@@ -4,9 +4,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GOOGLE_CLIENT_ID } from './config';
 
-// Reemplaza esto con tu ID de cliente real de Google
-const GOOGLE_CLIENT_ID = '12345678901-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com';
+// Para depuración - verificar si la variable de entorno se carga correctamente
+console.log('GOOGLE_CLIENT_ID cargado:', GOOGLE_CLIENT_ID);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

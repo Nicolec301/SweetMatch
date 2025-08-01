@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import GifCora from '../images/GifCora.webp';
 import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
+import { handleGoogleLogin, handleTraditionalLogin, isAuthenticated } from '../backend/utils/session';
 import '../styles/modules/login/formulario.css';
 
 const Login = () => {
@@ -13,7 +13,16 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  
+  // Verificar si ya hay una sesión activa
+  useEffect(() => {
+    if (isAuthenticated()) {
+      // Si ya hay una sesión, redireccionar al usuario
+      navigate('/');
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,7 +31,7 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validación básica
@@ -30,41 +39,45 @@ const Login = () => {
       setError('Por favor completa todos los campos');
       return;
     }
-
-    // Aquí irían las llamadas a la API o backend
-    console.log('Datos de login:', formData);
     
-    // Simulación de proceso de login
-    // En una implementación real, aquí harías la validación con tu backend
-    alert('Función de login en desarrollo. Datos enviados a consola.');
+    setLoading(true);
+    try {
+      const result = await handleTraditionalLogin(formData);
+      
+      if (result.success) {
+        // Mostrar mensaje de éxito
+        alert(result.message);
+        // Redireccionar al inicio
+        navigate('/');
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('Error al iniciar sesión. Por favor, intenta de nuevo.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Manejar respuesta exitosa de Google
   const handleGoogleLoginSuccess = (credentialResponse) => {
-    try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      console.log('Usuario de Google:', decoded);
-      
-      // Guardar la información del usuario en el estado
-      setUser(decoded);
-      
-      // Aquí puedes enviar la información a tu backend para
-      // verificar y autenticar al usuario en tu sistema
-      // Por ejemplo:
-      // loginWithGoogle(decoded)
-      
+    setLoading(true);
+    const result = handleGoogleLogin(credentialResponse);
+    
+    if (result.success) {
       // Mostrar mensaje de éxito
-      alert(`¡Bienvenido ${decoded.name}! Has iniciado sesión correctamente con Google.`);
-      
-    } catch (error) {
-      console.error('Error al decodificar el token:', error);
-      setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
+      alert(result.message);
+      // Redireccionar al inicio
+      navigate('/');
+    } else {
+      setError(result.message);
     }
+    setLoading(false);
   };
 
   // Manejar errores de Google
   const handleGoogleLoginError = () => {
-    console.error('Error en el login con Google');
     setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
   };
 
@@ -118,19 +131,26 @@ const Login = () => {
             </div>
 
             <div className="submit-group">
-              <button type="submit" className="btn-primary">Iniciar Sesión</button>
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              </button>
             </div>
             
             <div className="social-login" style={{ marginTop: '20px', textAlign: 'center' }}>
               <p style={{ marginBottom: '10px' }}>O inicia sesión con:</p>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <GoogleLogin
-                  onSuccess={handleGoogleLoginSuccess}
-                  onError={handleGoogleLoginError}
-                  text="signin_with"
-                  shape="rectangular"
-                  locale="es"
-                />
+                {loading ? (
+                  <div className="loading-spinner">Cargando...</div>
+                ) : (
+                  <GoogleLogin
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={handleGoogleLoginError}
+                    text="signin_with"
+                    shape="rectangular"
+                    locale="es"
+                    disabled={loading}
+                  />
+                )}
               </div>
             </div>
             
