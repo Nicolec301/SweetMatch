@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import GifCora from '../images/GifCora.webp';
+import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import '../styles/modules/login/formulario.css';
 
 const Login = () => {
@@ -11,6 +13,7 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
+  const [user, setUser] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -34,6 +37,35 @@ const Login = () => {
     // Simulación de proceso de login
     // En una implementación real, aquí harías la validación con tu backend
     alert('Función de login en desarrollo. Datos enviados a consola.');
+  };
+
+  // Manejar respuesta exitosa de Google
+  const handleGoogleLoginSuccess = (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      console.log('Usuario de Google:', decoded);
+      
+      // Guardar la información del usuario en el estado
+      setUser(decoded);
+      
+      // Aquí puedes enviar la información a tu backend para
+      // verificar y autenticar al usuario en tu sistema
+      // Por ejemplo:
+      // loginWithGoogle(decoded)
+      
+      // Mostrar mensaje de éxito
+      alert(`¡Bienvenido ${decoded.name}! Has iniciado sesión correctamente con Google.`);
+      
+    } catch (error) {
+      console.error('Error al decodificar el token:', error);
+      setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
+    }
+  };
+
+  // Manejar errores de Google
+  const handleGoogleLoginError = () => {
+    console.error('Error en el login con Google');
+    setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
   };
 
   return (
@@ -87,6 +119,19 @@ const Login = () => {
 
             <div className="submit-group">
               <button type="submit" className="btn-primary">Iniciar Sesión</button>
+            </div>
+            
+            <div className="social-login" style={{ marginTop: '20px', textAlign: 'center' }}>
+              <p style={{ marginBottom: '10px' }}>O inicia sesión con:</p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={handleGoogleLoginError}
+                  text="signin_with"
+                  shape="rectangular"
+                  locale="es"
+                />
+              </div>
             </div>
             
             <div style={{ textAlign: 'center', marginTop: '20px' }}>

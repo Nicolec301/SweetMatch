@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import GifCora from '../images/GifCora.webp';
 import '../styles/modules/crearCuenta/formularioCrear.css';
-import '../styles/modules/crearCuenta/multi-step-form.css';
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);

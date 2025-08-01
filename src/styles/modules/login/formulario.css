@@ -159,3 +159,39 @@
     color: #c62828;
     border: 1px solid #ef5350;
 }
+
+/* Estilos para login con Google */
+.social-login {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.social-login::before,
+.social-login::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background-color: #e0e0e0;
+}
+
+.social-login::before {
+    left: 0;
+}
+
+.social-login::after {
+    right: 0;
+}
+
+.social-login p {
+    color: var(--text-dark);
+    font-size: 14px;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 1;
+    background-color: white;
+    display: inline-block;
+    padding: 0 10px;
+}
