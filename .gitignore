@@ -1,2 +1,4 @@
 .vscode/settings.json
 /uploads
+/node_modules
+.env
