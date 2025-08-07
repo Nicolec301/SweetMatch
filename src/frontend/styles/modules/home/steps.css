@@ -1,0 +1,162 @@
+/* ===== PASOS SECTION - CÓMO FUNCIONA ===== */
+
+.pasos {
+  padding: 4rem 0;
+  background: white;
+}
+
+.pasos h2 {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.pasos p {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.step-item {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  border: 2px solid var(--accent);
+  position: relative;
+}
+
+.step-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 71, 120, 0.2);
+  border-color: var(--primary);
+}
+
+.step-number {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  border: 3px solid white;
+}
+
+.step-icon {
+  width: 60px;
+  height: 60px;
+  margin: 1.5rem auto 1.5rem;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.step-item h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.step-item p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Conectores entre pasos */
+.step-item:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: var(--primary);
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .steps-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .pasos h2 {
+    font-size: 2.2rem;
+  }
+  
+  .step-item {
+    padding: 2rem 1.5rem;
+  }
+  
+  .step-item::after {
+    display: none;
+  }
+  
+  .step-number {
+    top: -20px;
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .step-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pasos {
+    padding: 2rem 0;
+  }
+  
+  .pasos h2 {
+    font-size: 1.8rem;
+  }
+  
+  .step-item {
+    padding: 1.5rem 1rem;
+  }
+}

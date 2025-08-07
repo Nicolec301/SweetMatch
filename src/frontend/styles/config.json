@@ -1,0 +1,71 @@
+{
+  "name": "SweetMatch CSS Modules Configuration",
+  "version": "1.0.0",
+  "description": "Configuración de la arquitectura CSS modular para SweetMatch",
+  "structure": {
+    "main": "main.css",
+    "base": {
+      "variables": "base/variables.css"
+    },
+    "components": [
+      "components/buttons.css",
+      "components/cards.css", 
+      "components/forms.css",
+      "components/header.css",
+      "components/footer.css",
+      "components/hero.css",
+      "components/layout.css",
+      "components/user-menu.css",
+      "components/utilities.css"
+    ],
+    "modules": {
+      "home": {
+        "index": "modules/home/index.css",
+        "files": [
+          "modules/home/steps.css",
+          "modules/home/utilities.css"
+        ]
+      },
+      "features": {
+        "index": "modules/features/index.css", 
+        "files": [
+          "modules/features/features.css"
+        ]
+      },
+      "matches": {
+        "index": "modules/matches/index.css",
+        "files": [
+          "modules/matches/matches.css" 
+        ]
+      },
+      "testimonials": {
+        "index": "modules/testimonials/index.css",
+        "files": [
+          "modules/testimonials/testimonials.css"
+        ]
+      },
+      "auth": {
+        "login": "modules/login/formulario.css",
+        "register": "modules/crearCuenta/formularioCrear.css"
+      }
+    }
+  },
+  "guidelines": {
+    "naming": "BEM-like methodology",
+    "responsiveBreakpoints": {
+      "mobile": "320px - 767px",
+      "tablet": "768px - 1023px", 
+      "desktop": "1024px+"
+    },
+    "variables": "Use CSS custom properties defined in base/variables.css",
+    "mediaQueries": "Mobile-first approach",
+    "specificity": "Keep low (max 2-3 levels)",
+    "animations": "Prefer CSS animations over JavaScript when possible"
+  },
+  "development": {
+    "linting": "Validate CSS before commits",
+    "testing": "Test on all breakpoints", 
+    "optimization": "Use CSS variables for repeated values",
+    "maintenance": "Document complex styles with comments"
+  }
+}

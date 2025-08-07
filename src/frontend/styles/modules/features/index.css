@@ -1,0 +1,10 @@
+/* ===== MÓDULO FEATURES - ÍNDICE DE ESTILOS ===== */
+
+/* Importar todos los estilos relacionados con características */
+@import './features.css';
+
+/* Aquí se pueden agregar más archivos CSS relacionados con features:
+   - @import './feature-cards.css';
+   - @import './feature-animations.css';
+   - @import './feature-icons.css';
+*/

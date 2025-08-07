@@ -1,25 +1,36 @@
-// Importamos directamente desde la configuración central
-import { GOOGLE_CLIENT_ID } from '../../config';
+// Configuración simple de Google Auth para backend
+const { GOOGLE_CLIENT_ID } = require('../config/index');
 
 /**
- * Inicializa la configuración de Google OAuth
+ * Servicio de autenticación de Google simplificado
  */
-const initializeGoogleAuth = () => {
-  // Verificar que tenemos un ID de cliente válido
-  if (!GOOGLE_CLIENT_ID) {
-    console.error('ERROR: No se ha configurado el ID de cliente de Google en las variables de entorno.');
-    console.error('Por favor, asegúrate de que el archivo .env contiene REACT_APP_GOOGLE_CLIENT_ID.');
-    return false;
+class GoogleAuthService {
+  constructor() {
+    this.clientId = GOOGLE_CLIENT_ID;
   }
 
-  // Configurar el script de Google
-  const script = document.createElement('script');
-  script.src = 'https://accounts.google.com/gsi/client';
-  script.async = true;
-  script.defer = true;
-  document.body.appendChild(script);
+  // Verificar token de Google (simplificado para desarrollo)
+  async verifyToken(token) {
+    try {
+      // En un entorno real, aquí verificarías el token con Google
+      // Para desarrollo, solo verificamos que el token existe
+      if (!token) {
+        throw new Error('Token no proporcionado');
+      }
+      
+      return {
+        valid: true,
+        user: {
+          id: 'demo-user',
+          email: 'demo@example.com',
+          name: 'Usuario Demo'
+        }
+      };
+    } catch (error) {
+      console.error('Error verificando token:', error);
+      return { valid: false, error: error.message };
+    }
+  }
+}
 
-  return true;
-};
-
-export default initializeGoogleAuth;
+module.exports = new GoogleAuthService();

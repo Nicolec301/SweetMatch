@@ -1,0 +1,13 @@
+/* ===== ARCHIVO LEGACY - USAR main.css PARA NUEVA ARQUITECTURA ===== */
+
+/*
+  NOTA: Este archivo se mantiene por compatibilidad.
+  
+  Para nuevos desarrollos, usar:
+  @import './main.css' 
+  
+  La nueva arquitectura modular está documentada en README.md
+*/
+
+/* Redirección temporal al archivo principal modular */
+@import './main.css';

@@ -1,0 +1,8 @@
+/* ===== MÓDULO HOME - ÍNDICE DE ESTILOS ===== */
+
+/* Importar todos los estilos relacionados con la página Home */
+@import './steps.css';
+@import './utilities.css';
+
+/* Este archivo puede ser usado para importar todos los estilos 
+   relacionados con la página Home de forma organizada */

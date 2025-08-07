@@ -35,11 +35,11 @@ Una aplicación moderna de citas desarrollada con React y PostgreSQL.
    DB_PASSWORD=tu_password_aqui
    
    # Configuración del servidor
-   PORT=3002
+   PORT=3001
    NODE_ENV=development
    
    # URL del API para el frontend
-   REACT_APP_API_URL=http://localhost:3002/api
+   REACT_APP_API_URL=http://localhost:3001/api
    ```
 
 4. **Configura PostgreSQL**
@@ -72,8 +72,8 @@ npm run server
 ### URLs de la aplicación
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3002/api
-- **Health Check**: http://localhost:3002/api/health
+- **Backend API**: http://localhost:3001/api
+- **Health Check**: http://localhost:3001/api/health
 
 ## 🗄️ Base de Datos
 

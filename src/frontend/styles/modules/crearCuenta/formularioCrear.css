@@ -1,0 +1,531 @@
+/* Estilos específicos para formularios de SweetMatch */
+
+/* Contenedor principal de la página register */
+.register-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9ff 0%, #fff0f6 100%);
+    padding-top: 0;
+    padding-bottom: 2rem;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    animation: fadeIn 1s ease-out;
+    position: relative;
+    z-index: 1;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-header h1 {
+    color: var(--text-dark);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+.form-header h1 span {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--accent);
+    border-radius: var(--radius);
+    box-shadow: 0 3px 10px rgba(255, 51, 104, 0.1);
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(255, 51, 104, 0.15);
+}
+
+.form-section h2 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--accent);
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+.input-group input[type="text"]:focus,
+.input-group input[type="number"]:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 51, 104, 0.2);
+}
+
+.checkbox-group .checkbox-label {
+    margin-bottom: 1rem;
+}
+
+.checkbox-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--primary);
+    width: 18px;
+    height: 18px;
+}
+
+.checkbox-item label {
+    margin-bottom: 0;
+}
+
+.file-input {
+    background-color: white;
+    padding: 10px;
+    border-radius: 25px;
+    border: 2px solid var(--accent);
+}
+
+.submit-group {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.submit-group button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.input-group input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--accent);
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+.input-group input[type="password"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 51, 104, 0.2);
+}
+
+.input-group input[type="email"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--accent);
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+.input-group input[type="email"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255, 51, 104, 0.2);
+}
+
+.btn-back {
+    display: inline-block;
+    background-color: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(248, 120, 154, 0.2);
+}
+
+.btn-back i {
+    margin-right: 8px;
+}
+.alert {
+    padding: 12px;
+    border-radius: 8px;
+    margin: 15px auto;
+    max-width: 80%;
+    text-align: center;
+    font-size: 14px;
+}
+
+.alert-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef5350;
+}
+
+/* ===== ESTILOS PARA FORMULARIO MULTI-STEP ===== */
+
+.multi-step-form {
+    width: 100%;
+}
+
+.form-steps {
+    margin-bottom: 2.5rem;
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    width: 100%;
+    z-index: 2;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+}
+
+.step {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 10px rgba(255, 71, 120, 0.5);
+}
+
+.progress-line {
+    position: absolute;
+    top: 20px; /* Ajustado para alinearse con el centro de los círculos */
+    left: 15%;
+    right: 15%;
+    height: 3px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.progress-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+    width: var(--progress-width, 0%);
+}
+
+.step-title {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 130px;
+    word-wrap: break-word;
+}
+
+.step-item.active .step-title {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Navegación del formulario */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-prev {
+    background-color: #f5f5f5;
+    color: var(--text-dark);
+    border: 2px solid #e0e0e0;
+}
+
+.btn-prev:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.btn-next {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-next:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 71, 120, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 71, 120, 0.4);
+}
+
+/* Estilos para checkboxes */
+.checkbox-group {
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.checkbox-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: white;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--radius);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.checkbox-item:hover {
+    border-color: var(--primary);
+    background-color: var(--accent);
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+.checkbox-item label {
+    flex: 1;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.checkbox-item input[type="checkbox"]:checked + label {
+    color: var(--primary);
+}
+
+/* Estilos para file input */
+.file-input {
+    padding: 1rem;
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius);
+    background-color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-input:hover {
+    background-color: #fff0f6;
+    border-color: var(--primary-dark);
+}
+
+/* Heart icon en header */
+.heart-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+    animation: heartbeat 2s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 50%, 100% {
+        transform: scale(1);
+    }
+    25%, 75% {
+        transform: scale(1.1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .step-indicator,
+    .step-titles {
+        max-width: 100%;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .step {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .step-title {
+        font-size: 0.75rem;
+    }
+    
+    .checkbox-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-navigation {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-header h1 {
+        font-size: 2rem;
+    }
+    
+    .step-indicator,
+    .step-titles {
+        max-width: 100%;
+    }
+    
+    .step {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+    
+    .step-title {
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+    
+    .progress-line {
+        height: 2px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { GOOGLE_CLIENT_ID } from './config';
+import { GOOGLE_CLIENT_ID } from './config.js';
 
 // Para depuración - verificar si la variable de entorno se carga correctamente
 console.log('GOOGLE_CLIENT_ID cargado:', GOOGLE_CLIENT_ID);

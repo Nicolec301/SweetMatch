@@ -1,0 +1,10 @@
+/* ===== MÓDULO MATCHES - ÍNDICE DE ESTILOS ===== */
+
+/* Importar todos los estilos relacionados con matches */
+@import './matches.css';
+
+/* Aquí se pueden agregar más archivos CSS relacionados con matches:
+   - @import './match-filters.css';
+   - @import './match-cards.css';
+   - @import './match-animations.css';
+*/

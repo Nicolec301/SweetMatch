@@ -1,0 +1,10 @@
+/* ===== MÓDULO TESTIMONIALS - ÍNDICE DE ESTILOS ===== */
+
+/* Importar todos los estilos relacionados con testimoniales */
+@import './testimonials.css';
+
+/* Aquí se pueden agregar más archivos CSS relacionados con testimoniales:
+   - @import './testimonial-cards.css';
+   - @import './testimonial-carousel.css';
+   - @import './testimonial-ratings.css';
+*/

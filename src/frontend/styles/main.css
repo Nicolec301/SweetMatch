@@ -1,0 +1,205 @@
+/* ===== ARCHIVO PRINCIPAL DE ESTILOS MODULARIZADOS ===== */
+
+/* Base - Variables y configuraciones fundamentales */
+@import './base/variables.css';
+
+/* Componentes reutilizables */
+@import './components/buttons.css';
+@import './components/hero.css';
+@import './components/cards.css';
+@import './components/layout.css';
+@import './components/forms.css';
+@import './components/footer.css';
+@import './components/header.css';
+@import './components/user-menu.css';
+
+/* Módulos específicos de páginas */
+
+/* Home page modules */
+@import './modules/home/steps.css';
+@import './modules/home/utilities.css';
+
+/* Features module */
+@import './modules/features/features.css';
+
+/* Matches module */
+@import './modules/matches/matches.css';
+
+/* Testimoniales module */
+@import './modules/testimonials/testimonials.css';
+
+/* Auth modules */
+@import './modules/login/formulario.css';
+@import './modules/crearCuenta/formularioCrear.css';
+
+/* Componentes globales base */
+@import './components/utilities.css';
+
+/* ===== RESET Y ESTILOS GLOBALES ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background-color: var(--bg-light);
+  overflow-x: hidden;
+}
+
+/* Mejorar legibilidad de texto */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* Enlaces sin decoración por defecto */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Listas sin viñetas por defecto */
+ul, ol {
+  list-style: none;
+}
+
+/* Imágenes responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Botones con cursor pointer */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* Contenedor principal */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Secciones principales */
+.section {
+  padding: 4rem 0;
+}
+
+.section-padding-small {
+  padding: 2rem 0;
+}
+
+.section-padding-large {
+  padding: 6rem 0;
+}
+
+/* Títulos de sección estándar */
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Estados de carga */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accesibilidad */
+.focus-visible:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Media queries para responsive design */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2.2rem;
+  }
+  
+  .section {
+    padding: 2rem 0;
+  }
+  
+  .main-container {
+    padding: 0 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
+}
