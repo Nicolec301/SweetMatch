@@ -2,13 +2,21 @@
 const { Pool } = require('pg');
 const { DB_CONFIG } = require('./index');
 
+console.log('Configuración de BD:', {
+  host: DB_CONFIG.host,
+  port: DB_CONFIG.port,
+  database: DB_CONFIG.database,
+  user: DB_CONFIG.user,
+  password: DB_CONFIG.password ? '***' : 'VACÍO'
+});
+
 // Crear pool de conexiones
 const pool = new Pool({
   host: DB_CONFIG.host,
   port: DB_CONFIG.port,
   database: DB_CONFIG.database,
   user: DB_CONFIG.user,
-  password: DB_CONFIG.password,
+  password: String(DB_CONFIG.password), // Asegurar que sea string
   ssl: DB_CONFIG.ssl,
   max: DB_CONFIG.max,
   idleTimeoutMillis: DB_CONFIG.idleTimeoutMillis,

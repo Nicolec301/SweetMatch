@@ -1,33 +1,45 @@
-// Configuración simple de Google Auth para backend
+// Verificación real de Google ID Token
 const { GOOGLE_CLIENT_ID } = require('../config/index');
+const { OAuth2Client } = require('google-auth-library');
 
-/**
- * Servicio de autenticación de Google simplificado
- */
 class GoogleAuthService {
   constructor() {
     this.clientId = GOOGLE_CLIENT_ID;
+    this.client = new OAuth2Client(this.clientId);
   }
 
-  // Verificar token de Google (simplificado para desarrollo)
-  async verifyToken(token) {
+  /**
+   * Verifica el ID token de Google y retorna datos del usuario.
+   * No hardcodea ningún usuario; usa únicamente los datos del token.
+   */
+  async verifyToken(idToken) {
     try {
-      // En un entorno real, aquí verificarías el token con Google
-      // Para desarrollo, solo verificamos que el token existe
-      if (!token) {
+      if (!idToken) {
         throw new Error('Token no proporcionado');
       }
-      
+
+      const ticket = await this.client.verifyIdToken({
+        idToken,
+        audience: this.clientId
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) {
+        throw new Error('Token inválido');
+      }
+
+      // Datos comunes del payload: sub (ID), email, name, given_name, family_name, picture
       return {
         valid: true,
         user: {
-          id: 'demo-user',
-          email: 'demo@example.com',
-          name: 'Usuario Demo'
+          id: payload.sub,
+          email: payload.email,
+          name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim(),
+          picture: payload.picture
         }
       };
     } catch (error) {
-      console.error('Error verificando token:', error);
+      console.error('Error verificando token de Google:', error.message);
       return { valid: false, error: error.message };
     }
   }

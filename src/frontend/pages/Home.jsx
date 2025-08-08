@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import SessionManager from '../../services/SessionManager';
+import '../styles/modules/home/welcome.css';
 import I_Foto0 from '../images/I_Foto0.jpg';
 import I_Foto1 from '../images/I_Foto1.jpg';
 import I_Foto2 from '../images/I_Foto2.jpg';
@@ -16,26 +18,98 @@ import CarlosAna from '../images/CarlosAna.png';
 import Escribir from '../images/Escribir.png';
 
 const Home = () => {
-  return (
-    <div>
-      <Header />
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    // Obtener información del usuario si está autenticado
+    const sessionManager = SessionManager.getInstance();
+    const info = sessionManager.getUserInfo();
+    setUserInfo(info);
+  }, []);
+
+  // Renderizar hero diferente según el estado de autenticación
+  const renderHeroContent = () => {
+    if (userInfo && userInfo.isAuthenticated) {
+      const user = userInfo.user;
+      const perfilCompleto = user.perfil_completado;
       
-      {/* Hero Section */}
-      <section id="inicio" className="hero" aria-labelledby="hero-title">
+      return (
+        <div className="hero-content glass">
+          <h1 id="hero-title">¡Hola {user.nombre}! 👋</h1>
+          {!perfilCompleto ? (
+            <>
+              <p>¡Bienvenido a SweetMatch!<br />
+                Para obtener mejores matches, <strong>completa tu perfil</strong> con algunos detalles adicionales.</p>
+              <div className="profile-completion-notice">
+                <div className="completion-icon">⚠️</div>
+                <div className="completion-text">
+                  <strong>Perfil Incompleto</strong>
+                  <span>Completa tu información para obtener mejores matches</span>
+                </div>
+              </div>
+              <div className="cta-buttons">
+                <Link to="/complete-profile" className="btn-primary focus-visible" aria-label="Completar perfil">
+                  ✨ Completar Perfil
+                </Link>
+                <Link to="/busqueda" className="btn-secondary focus-visible" aria-label="Saltar por ahora">
+                  ⏭️ Saltar por ahora
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p>Bienvenido de vuelta a SweetMatch.<br />
+                ¿Listo para encontrar nuevas conexiones y continuar tu búsqueda del amor?</p>
+              <div className="user-welcome-info">
+                <div className="user-stats">
+                  <div className="stat-item">
+                    <span className="stat-icon">💕</span>
+                    <span className="stat-text">Matches esperándote</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-icon">✉️</span>
+                    <span className="stat-text">Mensajes nuevos</span>
+                  </div>
+                </div>
+              </div>
+              <div className="cta-buttons">
+                <Link to="/busqueda" className="btn-primary focus-visible" aria-label="Buscar nuevos matches">
+                  💖 Buscar Matches
+                </Link>
+                <Link to="/chat" className="btn-secondary focus-visible" aria-label="Ver mensajes">
+                  💬 Ver Mensajes
+                </Link>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    } else {
+      return (
         <div className="hero-content glass">
           <h1 id="hero-title">Conecta con Tu Match Ideal</h1>
           <p>En SweetMatch, creemos en el poder del amor verdadero.<br />
             Descubre conexiones auténticas y construye una historia
             de amor que perdurará para siempre.</p>
           <div className="cta-buttons">
-            <Link to="/busqueda" className="btn-primary focus-visible" aria-label="Encuentra el amor">
-              ❤️ Encuentra el amor
+            <Link to="/register" className="btn-primary focus-visible" aria-label="Registrarse gratis">
+              ❤️ Registrarse Gratis
             </Link>
-            <Link to="/en-linea" className="btn-secondary focus-visible" aria-label="Ver usuarios en línea">
-              🟢 Ver usuarios en línea
+            <Link to="/login" className="btn-secondary focus-visible" aria-label="Iniciar sesión">
+              🔐 Iniciar Sesión
             </Link>
           </div>
         </div>
+      );
+    }
+  };
+  return (
+    <div>
+      <Header />
+      
+      {/* Hero Section */}
+      <section id="inicio" className="hero" aria-labelledby="hero-title">
+        {renderHeroContent()}
         <div className="hero-images">
           <div className="slider" aria-label="Galería de imágenes" aria-live="polite">
             <img src={I_Foto0} alt="Pareja feliz en una cita romántica" loading="lazy" />

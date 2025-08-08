@@ -41,16 +41,25 @@ const createTables = async () => {
   const path = require('path');
   
   try {
-    console.log('🔄 Ejecutando script SQL...');
-    
-    // Leer el archivo SQL
-    const sqlScript = fs.readFileSync(path.join(__dirname, 'src/backend/postgres/database_setup.sql'), 'utf8');
-    
-    // Ejecutar el script SQL
+    console.log('🔄 Ejecutando script SQL unificado (schema_merged.sql)...');
+
+    // Intentar usar el esquema unificado; si no existe, fallback al antiguo
+    const mergedPath = path.join(__dirname, 'src/backend/postgres/schema_merged.sql');
+    const legacyPath = path.join(__dirname, 'src/backend/postgres/database_setup.sql');
+
+    let sqlPathToUse = mergedPath;
+    if (!fs.existsSync(mergedPath)) {
+      console.warn('⚠️ schema_merged.sql no encontrado, usando database_setup.sql');
+      sqlPathToUse = legacyPath;
+    }
+
+    // Leer el archivo SQL elegido
+    const sqlScript = fs.readFileSync(sqlPathToUse, 'utf8');
+
+    // Ejecutar el script SQL completo (idempotente)
     await sweetmatchPool.query(sqlScript);
-    
-    console.log('✅ Esquema de base de datos creado correctamente');
-    console.log('✅ Datos de ejemplo insertados');
+
+    console.log('✅ Esquema de base de datos aplicado correctamente');
 
   } catch (error) {
     throw error;

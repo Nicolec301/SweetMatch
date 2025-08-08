@@ -20,13 +20,25 @@ class ApiService {
     try {
       const response = await fetch(url, config);
       
+      // Siempre intentar parsear la respuesta JSON
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Si hay error, crear un Error object con información específica
+        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+        error.status = response.status;
+        error.errors = data.errors || [];
+        error.data = data;
+        throw error;
       }
       
-      return await response.json();
+      return data;
     } catch (error) {
       console.error('API Request failed:', error);
+      // Si es un error de red o parsing, mantener el comportamiento original
+      if (!error.status) {
+        throw new Error('Error de conexión');
+      }
       throw error;
     }
   }
@@ -48,6 +60,28 @@ class ApiService {
     });
   }
 
+  // Métodos específicos para registro
+  async registerUser(userData) {
+    return this.request('/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async checkEmailAvailability(email) {
+    return this.request('/register/check-email', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async validateRegistrationStep(step, data) {
+    return this.request('/register/validate-step', {
+      method: 'POST',
+      body: JSON.stringify({ step, data }),
+    });
+  }
+
   async loginUser(credentials) {
     return this.request('/auth/login', {
       method: 'POST',
@@ -57,6 +91,14 @@ class ApiService {
 
   async getInterests() {
     return this.request('/interests');
+  }
+
+  // Método para completar perfil después del registro
+  async completeProfile(profileData) {
+    return this.request('/users/complete-profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
   }
 
   // Métodos para matches
@@ -71,9 +113,25 @@ class ApiService {
     });
   }
 
+  // Métodos para conversaciones
+  async getUserConversations(userId) {
+    return this.request(`/conversations/user/${userId}`);
+  }
+
+  async createOrGetConversation(user1Id, user2Id) {
+    return this.request('/conversations', {
+      method: 'POST',
+      body: JSON.stringify({ user1Id, user2Id }),
+    });
+  }
+
+  async getConversationDetails(conversationId, userId) {
+    return this.request(`/conversations/${conversationId}/details?userId=${userId}`);
+  }
+
   // Métodos para mensajes
-  async getMessages() {
-    return this.request('/messages');
+  async getMessages(conversationId, page = 1, limit = 50) {
+    return this.request(`/conversations/${conversationId}/messages?page=${page}&limit=${limit}`);
   }
 
   async sendMessage(messageData) {
@@ -81,6 +139,17 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(messageData),
     });
+  }
+
+  async markMessagesAsRead(conversationId, userId) {
+    return this.request(`/conversations/${conversationId}/read`, {
+      method: 'PUT',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async getUnreadCount(userId) {
+    return this.request(`/users/${userId}/unread-count`);
   }
 }
 

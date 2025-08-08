@@ -4,6 +4,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import GifCora from '../../../images/GifCora.webp';
 import ApiService from '../../../../services/ApiService';
+import SessionManager from '../../../../services/SessionManager';
 import '../../../styles/modules/crearCuenta/formularioCrear.css';
 
 const Register = () => {
@@ -11,6 +12,10 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [interests, setInterests] = useState([]);
+  const [passwordValidation, setPasswordValidation] = useState({
+    isValid: false,
+    messages: []
+  });
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     // Paso 1: Información Personal
@@ -50,6 +55,33 @@ const Register = () => {
     loadInterests();
   }, []);
 
+  // Función para validar contraseña en tiempo real
+  const validatePassword = (password) => {
+    const messages = [];
+    let isValid = true;
+
+    if (!password) {
+      return { isValid: false, messages: [] };
+    }
+
+    if (password.length < 6) {
+      messages.push('Mínimo 6 caracteres');
+      isValid = false;
+    }
+
+    if (!/(?=.*[A-Z])/.test(password)) {
+      messages.push('Al menos una mayúscula');
+      isValid = false;
+    }
+
+    if (!/(?=.*\d)/.test(password)) {
+      messages.push('Al menos un número');
+      isValid = false;
+    }
+
+    return { isValid, messages };
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -75,6 +107,12 @@ const Register = () => {
         ...formData,
         [name]: value
       });
+
+      // Validar contraseña en tiempo real
+      if (name === 'password') {
+        const validation = validatePassword(value);
+        setPasswordValidation(validation);
+      }
     }
   };
 
@@ -107,6 +145,19 @@ const Register = () => {
       return;
     }
 
+    // Validar longitud de descripción específicamente
+    if (formData.descripcion.length < 10) {
+      setError(`La descripción debe tener al menos 10 caracteres. Actualmente tiene ${formData.descripcion.length}.`);
+      return;
+    }
+
+    // Validar contraseña antes de enviar
+    const passwordValidationResult = validatePassword(formData.password);
+    if (!passwordValidationResult.isValid) {
+      setError(`Contraseña inválida: ${passwordValidationResult.messages.join(', ')}`);
+      return;
+    }
+
     // Foto es opcional por ahora para facilitar pruebas
     // if (!formData.foto) {
     //   setError('Por favor selecciona una foto de perfil');
@@ -128,24 +179,44 @@ const Register = () => {
         busco: formData.busco,
         edad_min: parseInt(formData.edad_min),
         edad_max: parseInt(formData.edad_max),
-        intereses: formData.intereses
+        intereses: formData.intereses // Mantener los intereses tal como están
       };
 
-      console.log('Datos a enviar:', userData);
+      console.log('🚀 Enviando datos de registro:', { ...userData, password: '***' });
 
-      // Enviar datos al backend
-      const response = await ApiService.createUser(userData);
+      // Enviar datos al backend usando el endpoint de registro con hash
+      const response = await ApiService.registerUser(userData);
       
       if (response.success) {
         alert('¡Registro completado con éxito!');
-        navigate('/login');
+        
+        // Si el registro fue exitoso y hay un usuario, redirigir a completar perfil
+        if (response.data && response.data.id) {
+          // Actualizar sessionManager con los datos del usuario registrado
+          const sessionManager = SessionManager.getInstance();
+          sessionManager.setUser(response.data);
+          
+          // Redirigir a completar perfil
+          navigate('/complete-profile');
+        } else {
+          // Si no hay datos del usuario, ir a login
+          navigate('/login');
+        }
       } else {
         setError(response.message || 'Error al crear usuario');
       }
 
     } catch (error) {
       console.error('Error en registro:', error);
-      setError('Error de conexión. Intenta nuevamente.');
+      
+      // Si el error tiene información específica del servidor
+      if (error.errors && error.errors.length > 0) {
+        setError(`Errores de validación: ${error.errors.join(', ')}`);
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError('Error de conexión. Intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -203,6 +274,25 @@ const Register = () => {
                 onChange={handleChange}
                 required 
               />
+              {/* Validación en tiempo real de contraseña */}
+              {formData.password && (
+                <div className="password-validation" style={{ marginTop: '0.5rem' }}>
+                  {passwordValidation.isValid ? (
+                    <small style={{ color: 'green' }}>✓ Contraseña válida</small>
+                  ) : (
+                    <div>
+                      <small style={{ color: 'red', display: 'block' }}>
+                        Requisitos faltantes:
+                      </small>
+                      {passwordValidation.messages.map((msg, index) => (
+                        <small key={index} style={{ color: 'red', display: 'block', marginLeft: '10px' }}>
+                          • {msg}
+                        </small>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="input-group">
@@ -298,6 +388,7 @@ const Register = () => {
         return (
           <div className="form-section">
             <h2>Intereses</h2>
+            
             <div className="input-group checkbox-group">
               <label className="checkbox-label">¿Qué te gusta hacer?</label>
               <div className="checkbox-options">
@@ -307,11 +398,11 @@ const Register = () => {
                       type="checkbox" 
                       id={`interes-${interes.id}`} 
                       name="intereses" 
-                      value={interes.name}
-                      checked={formData.intereses.includes(interes.name)}
+                      value={interes.nombre}
+                      checked={formData.intereses.includes(interes.nombre)}
                       onChange={handleChange}
                     />
-                    <label htmlFor={`interes-${interes.id}`}>{interes.name}</label>
+                    <label htmlFor={`interes-${interes.id}`}>{interes.nombre}</label>
                   </div>
                 )) : (
                   <p>Cargando intereses...</p>
@@ -339,8 +430,14 @@ const Register = () => {
                 value={formData.descripcion}
                 onChange={handleChange}
                 required 
-                placeholder="Comparte algo interesante para que te conozcan mejor..."
+                minLength="10"
+                placeholder="Comparte algo interesante para que te conozcan mejor... (mínimo 10 caracteres)"
               />
+              {formData.descripcion && formData.descripcion.length < 10 && (
+                <small style={{ color: 'red', display: 'block', marginTop: '0.25rem' }}>
+                  Faltan {10 - formData.descripcion.length} caracteres (mínimo 10)
+                </small>
+              )}
             </div>
 
             <div className="input-group">

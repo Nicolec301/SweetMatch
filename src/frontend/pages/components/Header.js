@@ -1,44 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../../images/logo.svg';
-import { isAuthenticated, getActiveSession, logout } from '../../../services/sessionUtils';
+import SessionManager from '../../../services/SessionManager';
+import UserMenu from './UserMenu/UserMenu';
 import '../../styles/components/header.css';
 
 const Header = () => {
-  const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   
   useEffect(() => {
-    // Verificar si el usuario está autenticado
-    if (isAuthenticated()) {
-      setUser(getActiveSession());
-    }
-  }, []);
+    // Usar SessionManager para obtener información del usuario
+    const sessionManager = SessionManager.getInstance();
+    const info = sessionManager.getUserInfo();
+    setUserInfo(info);
+  }, [location]); // Re-verificar cuando cambie la ubicación
 
   // NOTA: Header ahora se muestra en todas las páginas incluyendo login y register
   // const noHeaderPages = ['/login', '/register'];
   // if (noHeaderPages.includes(location.pathname)) {
   //   return null;
   // }
-  
-  const handleLogout = () => {
-    const result = logout();
-    if (result.success) {
-      setUser(null);
-      alert('Has cerrado sesión correctamente.');
-      navigate('/');
-    }
-  };
 
   const toggleMobileMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleUserMenu = () => {
-    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   const isActivePage = (path) => {
@@ -68,7 +54,7 @@ const Header = () => {
                 <span className="nav-text">INICIO</span>
               </Link>
             </li>
-            {user && (
+            {userInfo && userInfo.isAuthenticated && (
               <>
                 <li className="nav-item">
                   <Link 
@@ -103,7 +89,7 @@ const Header = () => {
                 </li>
               </>
             )}
-            {!user && (
+            {(!userInfo || !userInfo.isAuthenticated) && (
               <>
                 <li className="nav-item">
                   <a href="/#como-funciona" className="nav-link">
@@ -125,80 +111,10 @@ const Header = () => {
           </ul>
         </nav>
 
-        {/* User Menu */}
+        {/* User Section */}
         <div className="user-section">
-          {user ? (
-            <div className="user-menu">
-              <button 
-                className="user-profile-btn"
-                onClick={toggleUserMenu}
-                aria-label="Abrir menú de usuario"
-              >
-                <div className="user-avatar-container">
-                  {user.picture ? (
-                    <img src={user.picture} alt={user.name} className="user-avatar" />
-                  ) : (
-                    <div className="default-avatar">
-                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                    </div>
-                  )}
-                  <div className="online-indicator"></div>
-                </div>
-                <span className="user-name">{user.name || 'Usuario'}</span>
-                <svg className={`dropdown-arrow ${isUserMenuOpen ? 'rotated' : ''}`} width="12" height="12" viewBox="0 0 12 12">
-                  <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="2" fill="none"/>
-                </svg>
-              </button>
-
-              {/* Dropdown Menu */}
-              <div className={`user-dropdown ${isUserMenuOpen ? 'dropdown-open' : ''}`}>
-                <div className="dropdown-header">
-                  <div className="user-info-card">
-                    <div className="user-avatar-large">
-                      {user.picture ? (
-                        <img src={user.picture} alt={user.name} />
-                      ) : (
-                        <div className="default-avatar-large">
-                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="user-details">
-                      <h4>{user.name || 'Usuario'}</h4>
-                      <p>{user.email || 'usuario@email.com'}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="dropdown-divider"></div>
-                
-                <div className="dropdown-menu">
-                  <Link to="/perfil" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                    <span className="item-icon">👤</span>
-                    <span className="item-text">Mi Perfil</span>
-                  </Link>
-                  
-                  <Link to="/busqueda" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                    <span className="item-icon">💖</span>
-                    <span className="item-text">Mis Matches</span>
-                    <span className="item-badge">2 nuevos</span>
-                  </Link>
-                  
-                  <Link to="/chat" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                    <span className="item-icon">💬</span>
-                    <span className="item-text">Mensajes</span>
-                    <span className="item-badge">3</span>
-                  </Link>
-
-                  <div className="dropdown-divider"></div>
-                  
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <span className="item-icon">🚪</span>
-                    <span className="item-text">Cerrar Sesión</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+          {userInfo && userInfo.isAuthenticated ? (
+            <UserMenu />
           ) : (
             <div className="auth-buttons">
               <Link to="/login" className="login-btn">

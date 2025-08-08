@@ -15,15 +15,20 @@ const apiRoutes = require('./routes/api');
 // Crear aplicación Express
 const app = express();
 
-// Configurar CORS usando la URL del .env
-const frontendUrl = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000';
-const backendUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:3001';
+// Configurar CORS para permitir frontend en puerto 3001
+const corsOptions = {
+  origin: [
+    'http://localhost:3000', // Puerto por defecto de React
+    'http://localhost:3001', // Puerto actual del frontend
+    'http://localhost:3002', // Puerto del backend (por si acaso)
+    process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200 // Para legacy browsers
+};
 
 // Middlewares
-app.use(cors({
-  origin: [frontendUrl, backendUrl],
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

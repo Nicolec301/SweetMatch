@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import SessionManager from '../../../../services/SessionManager';
 import Header from '../Header';
 import './Busqueda.css';
 
 const Busqueda = () => {
+  const navigate = useNavigate();
+  const sessionManager = SessionManager.getInstance();
+  const currentUser = sessionManager.getCurrentUser();
+
   const [searchFilters, setSearchFilters] = useState({
     edad: { min: 18, max: 35 },
     distancia: 50,
@@ -14,6 +20,19 @@ const Busqueda = () => {
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+
+  // Verificar autenticación y perfil completado
+  useEffect(() => {
+    if (!sessionManager.isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+
+    if (currentUser && !currentUser.perfil_completado) {
+      navigate('/complete-profile');
+      return;
+    }
+  }, [sessionManager, navigate, currentUser]);
 
   useEffect(() => {
     loadProfiles();

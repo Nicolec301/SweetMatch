@@ -1,31 +1,72 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
+import SessionManager from '../../../../services/SessionManager';
 import './Perfil.css';
 
 const Perfil = () => {
+  const navigate = useNavigate();
+  
+  // Obtener datos del usuario autenticado
+  const sessionManager = SessionManager.getInstance();
+  const currentUser = sessionManager.getCurrentUser();
+  
+  // Función para normalizar intereses (convertir objetos a strings)
+  const normalizeInterests = (intereses) => {
+    if (!Array.isArray(intereses)) return ['viajes', 'fotografía', 'música', 'cocina', 'fitness'];
+    
+    return intereses.map(interes => {
+      if (typeof interes === 'string') return interes;
+      if (typeof interes === 'object' && interes !== null) {
+        return interes.nombre || interes.id || 'Sin nombre';
+      }
+      return 'Sin nombre';
+    });
+  };
+  
+  // Verificar autenticación al cargar el componente
+  useEffect(() => {
+    if (!sessionManager.isAuthenticated()) {
+      // Si no está autenticado, redirigir al login
+      navigate('/login');
+    } else {
+      // Debug: mostrar los datos del usuario
+      console.log('🔍 Perfil - Datos del usuario:', currentUser);
+      if (currentUser?.intereses) {
+        console.log('🏷️ Perfil - Intereses originales:', currentUser.intereses);
+        console.log('🏷️ Perfil - Tipo de intereses:', typeof currentUser.intereses, Array.isArray(currentUser.intereses));
+      }
+
+      // Si el usuario no ha completado su perfil, redirigir a completar perfil
+      if (currentUser && !currentUser.perfil_completado) {
+        navigate('/complete-profile');
+      }
+    }
+  }, [sessionManager, navigate, currentUser]);
+  
   const [profile, setProfile] = useState({
-    nombre: 'Ana García',
-    edad: 25,
-    ubicacion: 'Madrid, España',
-    foto: '/images/chica.jpg',
+    nombre: currentUser?.nombre || 'Usuario',
+    edad: currentUser?.edad || 25,
+    ubicacion: currentUser?.ubicacion || 'Madrid, España',
+    foto: currentUser?.foto || '/images/chica.jpg',
     fotos: [
-      '/images/chica.jpg',
+      currentUser?.foto || '/images/chica.jpg',
       '/images/Sofia.png',
       '/images/laura.png'
     ],
-    descripcion: 'Me encanta viajar y conocer nuevas culturas. Buscando alguien con quien compartir aventuras y crear momentos inolvidables.',
-    intereses: ['viajes', 'fotografía', 'música', 'cocina', 'fitness'],
-    trabajo: 'Diseñadora Gráfica',
-    educacion: 'Universidad de Madrid',
-    altura: '1.65m',
-    signo: 'Leo',
-    fumador: 'No',
-    bebe: 'Ocasionalmente',
-    mascotas: 'Me encantan los perros',
-    hijos: 'No tengo, pero me gustarían en el futuro',
-    religion: 'Católica',
-    politica: 'Liberal',
-    verificada: true,
+    descripcion: currentUser?.descripcion || 'Me encanta viajar y conocer nuevas culturas. Buscando alguien con quien compartir aventuras y crear momentos inolvidables.',
+    intereses: normalizeInterests(currentUser?.intereses),
+    trabajo: currentUser?.trabajo || 'Diseñadora Gráfica',
+    educacion: currentUser?.educacion || 'Universidad de Madrid',
+    altura: currentUser?.altura || '1.65m',
+    signo: currentUser?.signo || 'Leo',
+    fumador: currentUser?.fumador || 'No',
+    bebe: currentUser?.bebe || 'Ocasionalmente',
+    mascotas: currentUser?.mascotas || 'Me encantan los perros',
+    hijos: currentUser?.hijos || 'No tengo, pero me gustarían en el futuro',
+    religion: currentUser?.religion || 'Católica',
+    politica: currentUser?.politica || 'Liberal',
+    verificada: currentUser?.verificada || true,
     configuracion: {
       mostrarEdad: true,
       mostrarUbicacion: true,
@@ -90,10 +131,42 @@ const Perfil = () => {
     }
   };
 
-  const saveProfile = () => {
-    // Aquí se guardaría el perfil en la base de datos
-    console.log('Guardando perfil:', profile);
-    setEditMode(false);
+  const saveProfile = async () => {
+    try {
+      // Aquí se guardaría el perfil en la base de datos
+      console.log('Guardando perfil:', profile);
+      
+      // Actualizar los datos en SessionManager
+      const updatedUserData = {
+        ...currentUser,
+        nombre: profile.nombre,
+        edad: profile.edad,
+        ubicacion: profile.ubicacion,
+        foto: profile.foto,
+        descripcion: profile.descripcion,
+        intereses: profile.intereses,
+        trabajo: profile.trabajo,
+        educacion: profile.educacion,
+        altura: profile.altura,
+        signo: profile.signo,
+        fumador: profile.fumador,
+        bebe: profile.bebe,
+        mascotas: profile.mascotas,
+        hijos: profile.hijos,
+        religion: profile.religion,
+        politica: profile.politica
+      };
+      
+      const result = sessionManager.updateUser(updatedUserData);
+      if (result.success) {
+        console.log('Perfil actualizado en SessionManager:', result.message);
+        setEditMode(false);
+      } else {
+        console.error('Error al actualizar perfil:', result.message);
+      }
+    } catch (error) {
+      console.error('Error guardando perfil:', error);
+    }
   };
 
   return (
@@ -221,9 +294,9 @@ const Perfil = () => {
               <div className="interests-section">
                 <h3>Intereses</h3>
                 <div className="interests-list">
-                  {profile.intereses.map((interest, index) => (
+                  {profile.intereses && profile.intereses.map((interest, index) => (
                     <div key={index} className="interest-tag">
-                      {interest}
+                      {typeof interest === 'string' ? interest : interest.nombre || interest.id || 'Sin nombre'}
                       {editMode && (
                         <button 
                           className="remove-interest"

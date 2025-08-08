@@ -1,58 +1,50 @@
-// Utilidades de sesión para el frontend
+// Utilidades de sesión para el frontend - Usa SessionManager singleton
 import ApiService from './ApiService';
+import SessionManager from './SessionManager';
 
 class SessionUtils {
   constructor() {
-    this.SESSION_KEY = 'sweetmatch_session';
+    this.sessionManager = SessionManager.getInstance();
   }
 
   // Verificar si hay una sesión activa
   isAuthenticated() {
-    const session = localStorage.getItem(this.SESSION_KEY);
-    if (!session) return false;
-    
-    try {
-      const sessionData = JSON.parse(session);
-      return sessionData && sessionData.user && sessionData.token;
-    } catch {
-      return false;
-    }
+    return this.sessionManager.isAuthenticated();
   }
 
   // Obtener sesión activa
   getActiveSession() {
-    const session = localStorage.getItem(this.SESSION_KEY);
-    if (!session) return null;
-    
-    try {
-      return JSON.parse(session);
-    } catch {
+    if (!this.sessionManager.isAuthenticated()) {
       return null;
     }
+    
+    return {
+      user: this.sessionManager.getCurrentUser(),
+      token: this.sessionManager.getToken(),
+      timestamp: Date.now()
+    };
   }
 
-  // Crear sesión
+  // Crear sesión (delegada al SessionManager)
   createSession(userData, token) {
-    const sessionData = {
-      user: userData,
-      token: token,
-      timestamp: new Date().getTime()
-    };
-    
-    localStorage.setItem(this.SESSION_KEY, JSON.stringify(sessionData));
-    return sessionData;
+    const result = this.sessionManager.login(userData, token);
+    return result;
   }
 
   // Cerrar sesión
   logout() {
-    localStorage.removeItem(this.SESSION_KEY);
-    window.location.href = '/';
+    const result = this.sessionManager.logout();
+    // Redireccionar después del logout
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 500);
+    return result;
   }
 
   // Handle Google Login (con backend real)
   async handleGoogleLogin(credentialResponse) {
     try {
-      console.log('Token de Google recibido:', credentialResponse);
+      console.log('🔐 Token de Google recibido');
       
       // Enviar token al backend para verificación
       const response = await ApiService.request('/auth/google', {
@@ -61,11 +53,26 @@ class SessionUtils {
       });
       
       if (response.success) {
-        const sessionData = this.createSession(response.user, credentialResponse.credential);
+        // Aceptar tanto response.data como response.user (retrocompatibilidad)
+        const payload = response.data || response.user;
+        const normalized = payload ? {
+          ...payload,
+          // Asegurar que exista 'nombre'
+          nombre: payload.nombre || payload.name || payload.email?.split('@')[0] || 'Usuario'
+        } : null;
+
+        if (!normalized) {
+          return {
+            success: false,
+            message: 'Respuesta inválida del servidor (sin datos de usuario)'
+          };
+        }
+
+        this.sessionManager.login(normalized, credentialResponse.credential);
         return {
           success: true,
-          message: 'Login con Google exitoso',
-          session: sessionData
+          message: `¡Bienvenido ${normalized?.nombre || 'Usuario'}!`,
+          session: this.getActiveSession()
         };
       } else {
         return {
@@ -85,15 +92,15 @@ class SessionUtils {
   // Handle Traditional Login (con backend real)
   async handleTraditionalLogin(formData) {
     try {
-      console.log('Intentando login con:', formData);
+      console.log('🔐 Intentando login tradicional para:', formData.email);
       const response = await ApiService.loginUser(formData);
       
       if (response.success) {
-        const sessionData = this.createSession(response.data, 'session-token');
+        this.sessionManager.login(response.data, 'session-token');
         return {
           success: true,
-          message: 'Login exitoso',
-          session: sessionData
+          message: `¡Bienvenido ${response.data.nombre}!`,
+          session: this.getActiveSession()
         };
       } else {
         return {
