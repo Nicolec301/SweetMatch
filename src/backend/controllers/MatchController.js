@@ -222,6 +222,111 @@ class MatchController {
       });
     }
   }
+
+  /**
+   * Dar like a un usuario
+   * @param {*} req 
+   * @param {*} res 
+   */
+  async likeUser(req, res) {
+    try {
+      const { likedUserId } = req.body;
+      const currentUserId = req.user?.id || req.body.currentUserId; // Obtener del token de auth o body temporalmente
+      
+      if (!likedUserId || !currentUserId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
+      // Verificar que no se esté dando like a sí mismo
+      if (parseInt(likedUserId) === parseInt(currentUserId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'No puedes dar like a ti mismo'
+        });
+      }
+
+      // Verificar si ya existe un match o like previo
+      const existingMatch = await MatchModel.checkExistingMatch(currentUserId, likedUserId);
+      
+      if (existingMatch.success && existingMatch.data) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ya existe una interacción con este usuario'
+        });
+      }
+
+      // Crear el like/match
+      const result = await MatchModel.createMatch({
+        usuario1_id: currentUserId,
+        usuario2_id: likedUserId
+      });
+
+      if (result.success) {
+        // Verificar si es un match mutuo
+        const mutualMatch = await MatchModel.checkMutualMatch(currentUserId, likedUserId);
+        
+        res.json({
+          success: true,
+          data: {
+            matchId: result.data.id,
+            isMatch: mutualMatch.success && mutualMatch.data
+          },
+          message: mutualMatch.success && mutualMatch.data ? '¡Es un match!' : 'Like enviado'
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error procesando like',
+          error: result.error
+        });
+      }
+
+    } catch (error) {
+      console.error('Error dando like:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  /**
+   * Pasar un usuario (no dar like)
+   * @param {*} req 
+   * @param {*} res 
+   */
+  async passUser(req, res) {
+    try {
+      const { passedUserId } = req.body;
+      const currentUserId = req.user?.id || req.body.currentUserId; // Obtener del token de auth o body temporalmente
+      
+      if (!passedUserId || !currentUserId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
+      // Por ahora solo registramos el pase en logs
+      // En el futuro podríamos crear una tabla de "passes" para no mostrar el mismo usuario
+      console.log(`Usuario ${currentUserId} pasó al usuario ${passedUserId}`);
+      
+      res.json({
+        success: true,
+        message: 'Usuario pasado correctamente'
+      });
+
+    } catch (error) {
+      console.error('Error pasando usuario:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
 }
 
 module.exports = new MatchController();

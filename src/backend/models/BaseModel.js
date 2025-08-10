@@ -124,8 +124,14 @@ class BaseModel {
    */
   async create(data) {
     try {
+      console.log('🔍 BaseModel.create called with data:', JSON.stringify(data, null, 2));
+      
       const fields = Object.keys(data).filter(key => data[key] !== undefined);
+      console.log('🔍 Fields after undefined filter:', fields);
+      
       const values = fields.map(key => data[key]);
+      console.log('🔍 Values mapped:', values);
+      
       const placeholders = fields.map((_, index) => `$${index + 1}`);
       
       const query = `

@@ -44,8 +44,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Middleware para rutas no encontradas
-app.use('*', (req, res) => {
+// Middleware para rutas no encontradas (excluye path de socket.io para permitir handshake)
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith('/socket.io')) return next();
   res.status(404).json({
     error: 'Ruta no encontrada',
     message: `No se pudo encontrar ${req.originalUrl}`
@@ -61,9 +62,39 @@ async function startServer() {
       throw new Error('No se pudo conectar a la base de datos');
     }
 
-    // Iniciar servidor
+    // Iniciar servidor con Socket.io
     const port = SERVER_CONFIG.port;
-    app.listen(port, () => {
+    const httpServer = require('http').createServer(app);
+    const { Server } = require('socket.io');
+    const io = new Server(httpServer, {
+      cors: {
+        origin: corsOptions.origin,
+        credentials: true
+      }
+    });
+
+    // Compartir instancia de io globalmente
+    app.set('io', io);
+
+    io.on('connection', (socket) => {
+      console.log('🔌 Cliente conectado', socket.id);
+
+      // Unirse a salas de conversación
+      socket.on('joinConversation', (conversationId) => {
+        socket.join(`conversation:${conversationId}`);
+      });
+
+      // Unirse a sala personal de usuario (para notificaciones)
+      socket.on('joinUser', (userId) => {
+        socket.join(`user:${userId}`);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('🔌 Cliente desconectado', socket.id);
+      });
+    });
+
+    httpServer.listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(`🚀 Servidor SweetMatch iniciado en puerto ${port}`);
       // eslint-disable-next-line no-console

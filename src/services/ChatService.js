@@ -1,11 +1,11 @@
 // Servicio para el manejo del chat y mensajería
 import ApiService from './ApiService';
-import SessionManager from './sessionUtils';
+import SessionManager from './SessionManager';
 
 class ChatService {
   constructor() {
     this.apiService = ApiService;
-    this.sessionManager = SessionManager;
+    this.sessionManager = SessionManager.getInstance();
   }
 
   /**
@@ -13,18 +13,24 @@ class ChatService {
    */
   async getUserConversations() {
     try {
+      console.log('👤 ChatService.getUserConversations called');
       const currentUser = this.sessionManager.getCurrentUser();
+      console.log('👤 Usuario actual:', currentUser);
+      
       if (!currentUser?.id) {
         throw new Error('Usuario no autenticado');
       }
 
+      console.log('📡 Llamando a apiService.getUserConversations para usuario:', currentUser.id);
       const response = await this.apiService.getUserConversations(currentUser.id);
+      console.log('📡 Respuesta de apiService.getUserConversations:', response);
+      
       return {
         success: true,
         data: response.data || []
       };
     } catch (error) {
-      console.error('Error obteniendo conversaciones:', error);
+      console.error('💥 Error obteniendo conversaciones en ChatService:', error);
       return {
         success: false,
         error: error.message || 'Error al obtener conversaciones'
@@ -37,18 +43,23 @@ class ChatService {
    */
   async getConversationMessages(conversationId, page = 1, limit = 50) {
     try {
+      console.log('🔗 ChatService.getConversationMessages called with:', { conversationId, page, limit });
+      
       if (!conversationId) {
         throw new Error('ID de conversación requerido');
       }
 
+      console.log('📡 Llamando a apiService.getMessages...');
       const response = await this.apiService.getMessages(conversationId, page, limit);
+      console.log('📡 Respuesta de apiService.getMessages:', response);
+      
       return {
         success: true,
         data: response.data || [],
         pagination: response.pagination
       };
     } catch (error) {
-      console.error('Error obteniendo mensajes:', error);
+      console.error('💥 Error obteniendo mensajes en ChatService:', error);
       return {
         success: false,
         error: error.message || 'Error al obtener mensajes'
@@ -180,17 +191,32 @@ class ChatService {
    * Formatear mensaje para mostrar en el chat
    */
   formatMessageForDisplay(message, currentUserId) {
-    if (!message) return null;
+    if (!message) {
+      console.warn('⚠️ formatMessageForDisplay: mensaje vacío');
+      return null;
+    }
 
-    return {
+    console.log('💬 formatMessageForDisplay raw message:', message);
+    console.log('💬 currentUserId for formatting:', currentUserId);
+
+    // Validar que el mensaje tiene las propiedades necesarias
+    if (!message.id || !message.contenido) {
+      console.error('🚨 formatMessageForDisplay: mensaje mal formateado', message);
+      return null;
+    }
+
+    const formatted = {
       id: message.id,
-      contenido: message.contenido,
+      contenido: String(message.contenido || ''),
       hora: this.formatTime(message.fecha_envio),
       remitente: message.remitente_id === currentUserId,
-      emisor: message.remitente_id === currentUserId ? 'Tú' : message.remitente_nombre,
-      leido: message.leido || false,
+      emisor: message.remitente_id === currentUserId ? 'Tú' : (message.remitente_nombre || 'Usuario'),
+      leido: Boolean(message.leido),
       tipo: 'texto'
     };
+
+    console.log('💬 formatMessageForDisplay result:', formatted);
+    return formatted;
   }
 
   /**
@@ -199,28 +225,52 @@ class ChatService {
   formatConversationForDisplay(conversation, currentUserId) {
     if (!conversation) return null;
 
+    console.log('🔄 formatConversationForDisplay raw data:', conversation);
+    console.log('🔄 currentUserId:', currentUserId);
+
     // Determinar el otro usuario en la conversación
     const otherUser = conversation.usuario1_id === currentUserId 
       ? {
           id: conversation.usuario2_id,
           nombre: conversation.otro_usuario_nombre,
-          imagen: conversation.otro_usuario_imagen || '/images/default-avatar.png'
+          imagen: conversation.otro_usuario_foto || '/images/default-avatar.png'
         }
       : {
           id: conversation.otro_usuario_id,
           nombre: conversation.otro_usuario_nombre,
-          imagen: conversation.otro_usuario_imagen || '/images/default-avatar.png'
+          imagen: conversation.otro_usuario_foto || '/images/default-avatar.png'
         };
 
-    return {
+    console.log('👤 otherUser determined:', otherUser);
+
+    // Asegurar que ultimo_mensaje sea string (puede venir como objeto por controladores antiguos)
+    let ultimoMensajeTexto = '';
+    let ultimoMensajeFecha = conversation.ultimo_mensaje_fecha || conversation.updated_at;
+
+    if (conversation.ultimo_mensaje) {
+      if (typeof conversation.ultimo_mensaje === 'object') {
+        ultimoMensajeTexto = conversation.ultimo_mensaje.contenido || '';
+        ultimoMensajeFecha = conversation.ultimo_mensaje.fecha_envio || ultimoMensajeFecha;
+      } else {
+        ultimoMensajeTexto = conversation.ultimo_mensaje;
+      }
+    } else {
+      ultimoMensajeTexto = 'Nueva conversación';
+    }
+
+    const formatted = {
       id: conversation.id,
       nombre: otherUser.nombre,
       imagen: otherUser.imagen,
-      vista_previa: conversation.ultimo_mensaje?.contenido || 'Nueva conversación',
-      tiempo_indicador: this.getTimeIndicator(conversation.ultimo_mensaje?.fecha_envio || conversation.updated_at),
+      vista_previa: ultimoMensajeTexto || 'Nueva conversación',
+      tiempo_indicador: this.getTimeIndicator(ultimoMensajeFecha),
       ultima_actividad: 'En línea', // Esto se puede mejorar con estado real
+      lastMessageAt: ultimoMensajeFecha || new Date().toISOString(), // Para ordenamiento en frontend
       mensajes: [] // Los mensajes se cargarán por separado
     };
+
+    console.log('✨ formatConversationForDisplay result:', formatted);
+    return formatted;
   }
 
   /**
@@ -234,6 +284,85 @@ class ChatService {
       hour: '2-digit', 
       minute: '2-digit' 
     });
+  }
+
+  /**
+   * Crear mensajes de prueba para debug (SOLO DESARROLLO)
+   */
+  async createTestMessages() {
+    try {
+      console.log('🧪 Creando mensajes de prueba...');
+      
+      // Datos de mensajes de prueba YA FORMATEADOS para React
+      const testMessages = [
+        // Conversación 5
+        {
+          id: Date.now() + 1,
+          contenido: '¡Hola! ¿Cómo estás?',
+          hora: '14:30',
+          remitente: false,
+          emisor: 'María García',
+          leido: true,
+          tipo: 'texto',
+          conversacion_id: 5
+        },
+        {
+          id: Date.now() + 2,
+          contenido: 'Muy bien, gracias. ¿Y tú?',
+          hora: '14:35',
+          remitente: true,
+          emisor: 'Tú',
+          leido: true,
+          tipo: 'texto',
+          conversacion_id: 5
+        },
+        {
+          id: Date.now() + 3,
+          contenido: 'Genial! Me alegra escuchar eso',
+          hora: '14:40',
+          remitente: false,
+          emisor: 'María García',
+          leido: false,
+          tipo: 'texto',
+          conversacion_id: 5
+        },
+        
+        // Conversación 6
+        {
+          id: Date.now() + 4,
+          contenido: 'Hey! Vi tu perfil y me parece interesante',
+          hora: '12:15',
+          remitente: false,
+          emisor: 'Carlos Mendoza',
+          leido: true,
+          tipo: 'texto',
+          conversacion_id: 6
+        },
+        {
+          id: Date.now() + 5,
+          contenido: '¡Hola! Gracias, el tuyo también me llamó la atención',
+          hora: '12:20',
+          remitente: true,
+          emisor: 'Tú',
+          leido: true,
+          tipo: 'texto',
+          conversacion_id: 6
+        }
+      ];
+
+      return {
+        success: true,
+        data: testMessages,
+        message: 'Mensajes de prueba creados localmente (ya formateados)'
+      };
+      
+    } catch (error) {
+      console.error('💥 Error creando mensajes de prueba:', error);
+      return {
+        success: false,
+        error: error.message || 'Error creando mensajes de prueba'
+      };
+    }
   }
 
   /**

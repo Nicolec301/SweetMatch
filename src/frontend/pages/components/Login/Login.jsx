@@ -12,6 +12,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -124,14 +125,39 @@ const Login = () => {
 
             <div className="input-group">
               <label htmlFor="password">Contraseña:</label>
-              <input 
-                type="password" 
-                id="password" 
-                name="password" 
-                value={formData.password}
-                onChange={handleChange}
-                required 
-              />
+              <div className="password-field">
+                <input 
+                  type={showPassword ? 'text' : 'password'}
+                  id="password" 
+                  name="password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required 
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setShowPassword((v) => !v)}
+                >
+                  {showPassword ? (
+                    // Icono ojo tachado
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.11 1 12c.66-1.53 1.6-2.94 2.76-4.17"/>
+                      <path d="M10.58 10.58a2 2 0 0 0 2.84 2.84"/>
+                      <path d="M6.1 6.1 1 1m22 22-5.1-5.1"/>
+                      <path d="M22.94 11.94A10.94 10.94 0 0 0 12 4a10.78 10.78 0 0 0-1.61.12"/>
+                    </svg>
+                  ) : (
+                    // Icono ojo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="input-group" style={{ textAlign: 'right' }}>

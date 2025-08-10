@@ -1,6 +1,7 @@
 // Rutas de la API
 const express = require('express');
 const router = express.Router();
+const tempAuthMiddleware = require('../middleware/tempAuth');
 
 // Controladores
 const UserController = require('../controllers/UserController');
@@ -8,6 +9,7 @@ const RegisterController = require('../controllers/RegisterController');
 const MatchController = require('../controllers/MatchController');
 const MessageController = require('../controllers/MessageController');
 const ConversationController = require('../controllers/ConversationController');
+const SearchController = require('../controllers/SearchController');
 
 // Rutas de registro
 router.post('/register', RegisterController.registerUser.bind(RegisterController));
@@ -54,6 +56,20 @@ router.post('/messages/send', MessageController.sendMessage); // Alias para comp
 router.delete('/messages/:id', MessageController.deleteMessage);
 router.put('/conversations/:conversationId/read', MessageController.markAsRead);
 router.get('/users/:userId/unread-count', MessageController.getUnreadCount);
+
+// Rutas de búsqueda
+router.get('/search/users', SearchController.searchUsers);
+router.get('/search/interests', SearchController.getAvailableInterests);
+router.get('/search/profile/:userId', SearchController.getUserProfile);
+router.post('/search/send-message', SearchController.sendDirectMessage);
+router.post('/search/create-test-messages', SearchController.createTestMessages); // SOLO PARA DESARROLLO
+
+// Rutas de acciones sociales (requieren autenticación)
+router.post('/matches/like', tempAuthMiddleware, MatchController.likeUser);
+router.post('/matches/pass', tempAuthMiddleware, MatchController.passUser);
+
+// Rutas de conversaciones adicionales (requieren autenticación)
+router.post('/conversations/create-or-get', tempAuthMiddleware, ConversationController.createOrGetConversation);
 
 // Ruta de salud
 router.get('/health', (req, res) => {

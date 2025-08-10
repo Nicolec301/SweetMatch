@@ -16,22 +16,41 @@ class ConversationController {
       }
 
       const result = await ConversationModel.getUserConversations(parseInt(userId));
-      
+
       if (result.success) {
-        // Agregar último mensaje a cada conversación
-        const conversationsWithLastMessage = await Promise.all(
+        // El modelo ya devuelve ultimo_mensaje (string) y ultimo_mensaje_fecha.
+        // Sin embargo reforzamos para que siempre sea STRING y añadimos fecha explícita.
+        const conversations = await Promise.all(
           result.data.map(async (conversation) => {
-            const lastMessageResult = await MessageModel.getLastMessage(conversation.id);
-            return {
-              ...conversation,
-              ultimo_mensaje: lastMessageResult.success ? lastMessageResult.data : null
-            };
+            // Si por algún motivo ultimo_mensaje viene como objeto, extraer su contenido/fecha.
+            if (conversation && typeof conversation.ultimo_mensaje === 'object' && conversation.ultimo_mensaje !== null) {
+              const objeto = conversation.ultimo_mensaje;
+              return {
+                ...conversation,
+                ultimo_mensaje: objeto.contenido || '',
+                ultimo_mensaje_fecha: objeto.fecha_envio || conversation.ultimo_mensaje_fecha || conversation.updated_at
+              };
+            }
+
+            // En algunos casos anteriores agregábamos el objeto completo del último mensaje. Si queremos información actualizada aseguramos consistencia aquí opcionalmente:
+            if (!conversation.ultimo_mensaje || !conversation.ultimo_mensaje_fecha) {
+              // Cargar último mensaje sólo si falta alguno de los campos
+              const lastMessageResult = await MessageModel.getLastMessage(conversation.id);
+              if (lastMessageResult.success && lastMessageResult.data) {
+                return {
+                  ...conversation,
+                  ultimo_mensaje: lastMessageResult.data.contenido || '',
+                  ultimo_mensaje_fecha: lastMessageResult.data.fecha_envio || conversation.ultimo_mensaje_fecha || conversation.updated_at
+                };
+              }
+            }
+            return conversation;
           })
         );
 
         res.json({
           success: true,
-          data: conversationsWithLastMessage
+          data: conversations
         });
       } else {
         res.status(500).json({
@@ -52,16 +71,21 @@ class ConversationController {
   // Crear o obtener conversación entre dos usuarios
   async createOrGetConversation(req, res) {
     try {
-      const { user1Id, user2Id } = req.body;
+      const { participantId, user1Id, user2Id } = req.body;
+      const currentUserId = req.user?.id || req.body.currentUserId; // Obtener del token de auth o body temporalmente
       
-      if (!user1Id || !user2Id) {
+      // Manejar diferentes formatos de entrada
+      const userId1 = user1Id || currentUserId;
+      const userId2 = user2Id || participantId;
+      
+      if (!userId1 || !userId2) {
         return res.status(400).json({
           success: false,
           message: 'IDs de usuarios son requeridos'
         });
       }
 
-      if (user1Id === user2Id) {
+      if (parseInt(userId1) === parseInt(userId2)) {
         return res.status(400).json({
           success: false,
           message: 'No puedes crear conversación contigo mismo'
@@ -69,8 +93,8 @@ class ConversationController {
       }
 
       const result = await ConversationModel.getOrCreateConversation(
-        parseInt(user1Id), 
-        parseInt(user2Id)
+        parseInt(userId1), 
+        parseInt(userId2)
       );
       
       if (result.success) {

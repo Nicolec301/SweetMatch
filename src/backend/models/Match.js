@@ -100,11 +100,41 @@ class MatchModel extends BaseModel {
       
       return {
         success: result.success,
-        isMutual: result.success && result.data[0].count > 0,
+        data: result.success && result.data[0].count > 0,
         error: result.error
       };
     } catch (error) {
       console.error('Error verificando match mutuo:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Verificar si existe algún tipo de interacción entre usuarios
+   * @param {number} usuario1Id - ID del primer usuario
+   * @param {number} usuario2Id - ID del segundo usuario
+   * @returns {Object} Resultado de la verificación
+   */
+  async checkExistingMatch(usuario1Id, usuario2Id) {
+    try {
+      const query = `
+        SELECT * FROM matches 
+        WHERE ((usuario1_id = $1 AND usuario2_id = $2) OR (usuario1_id = $2 AND usuario2_id = $1))
+        LIMIT 1
+      `;
+      
+      const result = await this.customQuery(query, [usuario1Id, usuario2Id]);
+      
+      return {
+        success: result.success,
+        data: result.success && result.data.length > 0 ? result.data[0] : null,
+        error: result.error
+      };
+    } catch (error) {
+      console.error('Error verificando match existente:', error);
       return {
         success: false,
         error: error.message

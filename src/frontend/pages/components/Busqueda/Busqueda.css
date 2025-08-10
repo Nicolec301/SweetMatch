@@ -1,7 +1,7 @@
 /* Busqueda Container */
 .busqueda-container {
   display: flex;
-  height: 100vh;
+  min-height: calc(100vh - 80px); /* Resta la altura del header */
   background: #f5f7fa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -75,6 +75,7 @@
   background: #ddd;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
 }
 
@@ -111,6 +112,7 @@
   background: #ddd;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
 }
 
@@ -224,8 +226,9 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Cambio de center a flex-start */
   padding: 20px;
+  overflow-y: auto; /* Permite scroll si es necesario */
 }
 
 /* Profile Card */
@@ -237,6 +240,10 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   transition: transform 0.3s ease;
+  max-height: calc(100vh - 120px); /* Limita la altura máxima */
+  display: flex;
+  flex-direction: column;
+  min-height: 600px; /* Altura mínima para asegurar contenido completo */
 }
 
 .profile-card:hover {
@@ -245,11 +252,12 @@
 
 .profile-image-container {
   position: relative;
+  flex-shrink: 0; /* No permite que se encoja */
 }
 
 .profile-image {
   width: 100%;
-  height: 400px;
+  height: 300px; /* Reducido de 400px a 300px */
   object-fit: cover;
 }
 
@@ -313,6 +321,10 @@
 /* Profile Info */
 .profile-info {
   padding: 25px;
+  flex: 1; /* Toma el espacio restante */
+  overflow-y: auto; /* Permite scroll si es necesario */
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-header {
@@ -398,6 +410,9 @@
   display: flex;
   justify-content: center;
   gap: 30px;
+  margin-top: auto; /* Empuja hacia abajo */
+  padding-top: 20px; /* Espaciado superior */
+  flex-shrink: 0; /* No se encoge */
 }
 
 .action-btn {
@@ -521,4 +536,174 @@
 .search-sidebar::-webkit-scrollbar-thumb:hover,
 .interests-filter::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Modal de mensaje */
+.message-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.message-modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #eee;
+  /* Unificar con paleta principal (rosa) */
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-body textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 2px solid #e0e6ed;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  direction: ltr;
+}
+
+.modal-body textarea::placeholder {
+  color: #999;
+}
+
+.modal-body textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.char-count {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  padding: 20px 25px;
+  background: #f8f9fa;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d;
+  transform: translateY(-1px);
+}
+
+.btn-send {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-send:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Botón de mensaje en acciones del perfil */
+.action-btn.message {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.action-btn.message:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+}
+
+/* Loading states */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

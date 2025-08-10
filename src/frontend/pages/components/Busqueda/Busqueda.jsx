@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SessionManager from '../../../../services/SessionManager';
+import SearchService from '../../../../services/SearchService';
 import Header from '../Header';
 import './Busqueda.css';
 
@@ -20,6 +21,14 @@ const Busqueda = () => {
   const [profiles, setProfiles] = useState([]);
   const [filteredProfiles, setFilteredProfiles] = useState([]);
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
+  const [availableInterests, setAvailableInterests] = useState([]);
+  const [loading, setLoading] = useState(false); // loading general (filtros / perfiles)
+  const [sendingMessage, setSendingMessage] = useState(false); // estado solo para enviar mensaje directo
+  const [error, setError] = useState('');
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messageText, setMessageText] = useState('');
+  const messageTextareaRef = useRef(null);
 
   // Verificar autenticación y perfil completado
   useEffect(() => {
@@ -34,12 +43,17 @@ const Busqueda = () => {
     }
   }, [sessionManager, navigate, currentUser]);
 
-  useEffect(() => {
-    loadProfiles();
-  }, []);
+  // --- mover definición de loadProfiles antes de este efecto ---
 
   useEffect(() => {
     const applyFilters = () => {
+      // Verificar que profiles esté definido y sea un array
+      if (!profiles || !Array.isArray(profiles) || profiles.length === 0) {
+        setFilteredProfiles([]);
+        setCurrentProfileIndex(0);
+        return;
+      }
+
       let filtered = profiles.filter(profile => {
         // Filtro por edad
         if (profile.edad < searchFilters.edad.min || profile.edad > searchFilters.edad.max) {
@@ -81,8 +95,73 @@ const Busqueda = () => {
     applyFilters();
   }, [searchFilters, profiles]);
 
-  const loadProfiles = () => {
-    // Datos de perfiles simulados
+  const loadProfiles = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Construir filtros para la API
+      const apiFilters = {
+        edadMin: searchFilters.edad.min,
+        edadMax: searchFilters.edad.max,
+        distancia: searchFilters.distancia,
+        genero: searchFilters.genero !== 'ambos' ? searchFilters.genero : undefined,
+        intereses: searchFilters.intereses,
+        estado: searchFilters.estado !== 'todos' ? searchFilters.estado : undefined,
+        excluirUsuario: currentUser?.id
+      };
+
+      // Filtrar valores undefined
+      const cleanFilters = Object.fromEntries(
+        Object.entries(apiFilters).filter(([_, value]) => value !== undefined)
+      );
+
+      const result = await SearchService.searchUsers(cleanFilters, 1, 50);
+      
+      if (result.success && result.data) {
+        const formattedProfiles = result.data.map(user => 
+          SearchService.formatUserForDisplay(user)
+        );
+        setProfiles(formattedProfiles);
+      } else {
+        // Fallback a datos simulados en caso de error
+        console.warn('Error en API, usando datos simulados:', result.error);
+        setProfiles(getMockProfiles());
+      }
+    } catch (error) {
+      console.error('Error cargando perfiles:', error);
+      setError('Error al cargar perfiles');
+      setProfiles(getMockProfiles());
+    } finally {
+      setLoading(false);
+    }
+  }, [searchFilters, currentUser]);
+
+  // Efecto inicial para cargar datos
+  useEffect(() => {
+    loadProfiles();
+    loadInterests();
+  }, [loadProfiles]);
+
+  const loadInterests = async () => {
+    try {
+      const result = await SearchService.getAvailableInterests();
+      if (result.success && result.data) {
+        setAvailableInterests(result.data);
+      }
+    } catch (error) {
+      console.error('Error cargando intereses:', error);
+      setAvailableInterests([
+        'viajes', 'fotografía', 'música', 'cocina', 'deporte', 'cine', 
+        'fitness', 'lectura', 'arte', 'pintura', 'museos', 'café',
+        'tecnología', 'gaming', 'programación', 'ciencia', 'animales', 
+        'naturaleza', 'senderismo', 'veterinaria'
+      ]);
+    }
+  };
+
+  const getMockProfiles = () => {
+    // Datos de perfiles simulados como fallback
     const mockProfiles = [
       {
         id: 1,
@@ -149,6 +228,16 @@ const Busqueda = () => {
     setProfiles(mockProfiles);
   };
 
+  // Recargar perfiles cuando cambien los filtros
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log('Filtros aplicados:', searchFilters);
+      loadProfiles();
+    }, 500); // Debounce para evitar demasiadas llamadas
+
+    return () => clearTimeout(timeoutId);
+  }, [searchFilters, loadProfiles]);
+
   const handleFilterChange = (filterType, value) => {
     setSearchFilters(prev => ({
       ...prev,
@@ -177,29 +266,117 @@ const Busqueda = () => {
     }
   };
 
-  const likeProfile = () => {
-    console.log('Profile liked:', filteredProfiles[currentProfileIndex]);
-    nextProfile();
+  const likeProfile = async () => {
+    try {
+      const profile = filteredProfiles[currentProfileIndex];
+      if (!profile) return;
+
+      setLoading(true);
+      const result = await SearchService.likeProfile(profile.id);
+      
+      if (result.success) {
+        console.log('Profile liked:', profile);
+        // Mostrar notificación de éxito si es necesario
+        if (result.data?.isMatch) {
+          alert('¡Es un match! 💖');
+        }
+      } else {
+        console.error('Error dando like:', result.error);
+      }
+    } catch (error) {
+      console.error('Error dando like:', error);
+    } finally {
+      setLoading(false);
+      nextProfile();
+    }
   };
 
-  const passProfile = () => {
-    console.log('Profile passed:', filteredProfiles[currentProfileIndex]);
-    nextProfile();
+  const passProfile = async () => {
+    try {
+      const profile = filteredProfiles[currentProfileIndex];
+      if (!profile) return;
+
+      setLoading(true);
+      const result = await SearchService.passProfile(profile.id);
+      
+      if (result.success) {
+        console.log('Profile passed:', profile);
+      } else {
+        console.error('Error pasando perfil:', result.error);
+      }
+    } catch (error) {
+      console.error('Error pasando perfil:', error);
+    } finally {
+      setLoading(false);
+      nextProfile();
+    }
   };
 
-  const availableInterests = [
-    'viajes', 'fotografía', 'música', 'cocina', 'deporte', 'cine', 
-    'fitness', 'lectura', 'arte', 'pintura', 'museos', 'café',
-    'tecnología', 'gaming', 'programación', 'ciencia', 'animales', 
-    'naturaleza', 'senderismo', 'veterinaria'
-  ];
+  const openMessageModal = (user) => {
+    setSelectedUser(user);
+    setShowMessageModal(true);
+    setMessageText('');
+  };
+
+  const closeMessageModal = () => {
+    setShowMessageModal(false);
+    setSelectedUser(null);
+    setMessageText('');
+  };
+
+  // Enfocar automáticamente el textarea al abrir el modal
+  useEffect(() => {
+    if (showMessageModal && messageTextareaRef.current) {
+      // Usar requestAnimationFrame para enfocar después del render completo
+      const focusTextarea = () => {
+        const textarea = messageTextareaRef.current;
+        if (textarea) {
+          textarea.focus();
+        }
+      };
+      
+      requestAnimationFrame(focusTextarea);
+    }
+  }, [showMessageModal]);
+
+  const sendDirectMessage = async () => {
+    if (!messageText.trim() || !selectedUser || !currentUser || sendingMessage) return;
+
+    try {
+      setSendingMessage(true);
+      const textToSend = messageText.trim();
+      const result = await SearchService.sendDirectMessage(
+        selectedUser.id, 
+        textToSend,
+        currentUser.id
+      );
+      
+      if (result.success) {
+        alert('¡Mensaje enviado exitosamente!');
+        closeMessageModal();
+      } else {
+        alert('Error al enviar mensaje: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error enviando mensaje:', error);
+      alert('Error al enviar mensaje');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
 
   const currentProfile = filteredProfiles[currentProfileIndex];
+
+  // Eliminado componente interno para evitar remount que mueve el cursor al inicio.
+  // Se renderiza inline más abajo sólo cuando showMessageModal es true.
 
   return (
     <div>
       <Header />
       <div className="busqueda-container">
+      {error && (
+        <div style={{background:'#ffebee',color:'#c62828',padding:'8px',margin:'8px 0',borderRadius:'4px'}}>{error}</div>
+      )}
       <div className="search-sidebar">
         <div className="search-header">
           <h3>Filtros de Búsqueda</h3>
@@ -396,13 +573,23 @@ const Busqueda = () => {
                   onClick={passProfile}
                   className="action-btn pass"
                   title="Pasar"
+                  disabled={loading}
                 >
                   ✕
+                </button>
+                <button 
+                  onClick={() => openMessageModal(currentProfile)}
+                  className="action-btn message"
+                  title="Enviar mensaje"
+                  disabled={loading}
+                >
+                  💬
                 </button>
                 <button 
                   onClick={likeProfile}
                   className="action-btn like"
                   title="Me gusta"
+                  disabled={loading}
                 >
                   💖
                 </button>
@@ -419,6 +606,42 @@ const Busqueda = () => {
         )}
       </div>
     </div>
+    
+    {showMessageModal && (
+      <div className="message-modal show">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Enviar mensaje a {selectedUser?.nombre}</h3>
+            <button onClick={closeMessageModal} className="close-btn">×</button>
+          </div>
+          <div className="modal-body">
+            <textarea
+              ref={messageTextareaRef}
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Escribe tu mensaje..."
+              rows={4}
+              maxLength={500}
+              // autoFocus removido para no forzar refocus que puede interferir con la posición del caret
+            />
+            <div className="char-count">{messageText.length}/500</div>
+          </div>
+          <div className="modal-actions">
+            <button onClick={closeMessageModal} className="btn-cancel">
+              Cancelar
+            </button>
+            <button
+              onClick={sendDirectMessage}
+              className="btn-send"
+              disabled={!messageText.trim() || sendingMessage}
+            >
+              {sendingMessage ? 'Enviando...' : 'Enviar'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    
     </div>
   );
 };

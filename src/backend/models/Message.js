@@ -15,30 +15,71 @@ class MessageModel extends BaseModel {
    */
   async getMessagesByConversation(conversationId, options = {}) {
     try {
-      const { limit = 50, offset = 0 } = options;
-      
+      const { limit = 50, offset = 0, latestOnly = false } = options;
+
+      // Si latestOnly está activo ignoramos offset y siempre traemos los últimos N
+      const effectiveOffset = latestOnly ? 0 : offset;
+
+      // Estrategia: ordenar por id DESC (garantiza que el último insert siempre esté) y luego devolver ASC
       const query = `
-        SELECT 
-          m.*,
-          u.nombre as remitente_nombre,
-          CASE 
-            WHEN m.fecha_lectura IS NOT NULL THEN true 
-            ELSE false 
-          END as leido
-        FROM mensajes m
-        JOIN usuarios u ON m.remitente_id = u.id
-        WHERE m.conversacion_id = $1
-        ORDER BY m.fecha_envio ASC
-        LIMIT $2 OFFSET $3
+        WITH ultimos AS (
+          SELECT 
+            m.*,
+            u.nombre AS remitente_nombre,
+            (m.fecha_lectura IS NOT NULL) AS leido
+          FROM mensajes m
+          JOIN usuarios u ON m.remitente_id = u.id
+          WHERE m.conversacion_id = $1
+          ORDER BY m.id DESC
+          LIMIT $2 OFFSET $3
+        )
+        SELECT * FROM ultimos ORDER BY id ASC
       `;
-      
-      return await this.customQuery(query, [conversationId, limit, offset]);
+
+      const result = await this.customQuery(query, [conversationId, limit, effectiveOffset]);
+
+      // Conteo total para paginación (sin límite)
+      let totalCount = result.count;
+      try {
+        const countRes = await this.customQuery('SELECT COUNT(*) AS total FROM mensajes WHERE conversacion_id = $1', [conversationId]);
+        if (countRes.success && countRes.data[0]) {
+          totalCount = parseInt(countRes.data[0].total, 10);
+        }
+      } catch (cErr) {
+        console.error('⚠️ Error obteniendo conteo total de mensajes:', cErr.message);
+      }
+
+      return { ...result, count: totalCount };
     } catch (error) {
       console.error('Error obteniendo mensajes por conversación:', error);
       return {
         success: false,
         error: error.message
       };
+    }
+  }
+
+  /**
+   * Obtener mensajes posteriores a un ID (para actualización incremental)
+   * @param {number} conversationId
+   * @param {number} lastId - ID último mensaje que el cliente tiene
+   * @param {number} limit - Máximo de mensajes a recuperar
+   */
+  async getMessagesAfterId(conversationId, lastId, limit = 50) {
+    try {
+      const query = `
+        SELECT m.*, u.nombre AS remitente_nombre, (m.fecha_lectura IS NOT NULL) AS leido
+        FROM mensajes m
+        JOIN usuarios u ON m.remitente_id = u.id
+        WHERE m.conversacion_id = $1 AND m.id > $2
+        ORDER BY m.id ASC
+        LIMIT $3
+      `;
+      const result = await this.customQuery(query, [conversationId, lastId, limit]);
+      return { ...result, count: result.count };
+    } catch (error) {
+      console.error('Error obteniendo mensajes después de ID:', error);
+      return { success: false, error: error.message };
     }
   }
 
@@ -50,6 +91,11 @@ class MessageModel extends BaseModel {
    * @returns {Object} Resultado de la creación
    */
   async createMessage(conversationId, senderId, content) {
+    console.log('🔍 MessageModel.createMessage called with:');
+    console.log('  conversationId:', conversationId, typeof conversationId);
+    console.log('  senderId:', senderId, typeof senderId);
+    console.log('  content:', content, typeof content);
+
     const messageData = {
       conversacion_id: conversationId,
       remitente_id: senderId,
@@ -58,7 +104,20 @@ class MessageModel extends BaseModel {
       fecha_lectura: null
     };
 
-    return await this.create(messageData);
+    console.log('📦 messageData prepared:', JSON.stringify(messageData, null, 2));
+
+    const result = await this.create(messageData);
+    console.log('📨 create result:', JSON.stringify(result, null, 2));
+    // Actualizar updated_at de la conversación para que aparezca arriba en listados
+    if (result.success) {
+      try {
+        await this.customQuery('UPDATE conversaciones SET updated_at = NOW() WHERE id = $1', [conversationId]);
+      } catch (e) {
+        console.error('⚠️ No se pudo actualizar updated_at de la conversación:', e.message);
+      }
+    }
+    
+    return result;
   }
 
   /**

@@ -27,6 +27,8 @@ footer {
 .footer-logo {
   height: 60px;
   margin-bottom: 1rem;
+  /* Forzar logo totalmente blanco (todos los píxeles no transparentes) */
+  filter: brightness(0) invert(1);
 }
 
 /* Footer Headings */

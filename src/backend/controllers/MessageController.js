@@ -7,7 +7,9 @@ class MessageController {
   async getMessages(req, res) {
     try {
       const { conversationId } = req.params;
-      const { page = 1, limit = 50 } = req.query;
+  const { page = 1, limit = 50, lastId } = req.query;
+      
+      console.log('📨 MessageController.getMessages called with:', { conversationId, page, limit });
       
       if (!conversationId) {
         return res.status(400).json({
@@ -16,14 +18,43 @@ class MessageController {
         });
       }
 
+      // Si se proporciona lastId hacemos carga incremental y omitimos paginación clásica
+      if (lastId) {
+        console.log('🔄 Carga incremental solicitada desde ID:', lastId);
+        const incResult = await MessageModel.getMessagesAfterId(
+          parseInt(conversationId),
+          parseInt(lastId),
+          parseInt(limit)
+        );
+        console.log('📨 Incremental result:', JSON.stringify(incResult, null, 2));
+        if (incResult.success) {
+          return res.json({
+            success: true,
+            data: incResult.data,
+            pagination: {
+              page: 1,
+              limit: parseInt(limit),
+              total: incResult.count
+            },
+            incremental: true
+          });
+        } else {
+          return res.status(500).json({ success: false, message: 'Error incremental', error: incResult.error });
+        }
+      }
+
       const offset = (page - 1) * limit;
+      console.log('📊 Query params:', { conversationId: parseInt(conversationId), limit: parseInt(limit), offset });
+
       const result = await MessageModel.getMessagesByConversation(
         parseInt(conversationId),
-        { limit: parseInt(limit), offset }
+        { limit: parseInt(limit), offset, latestOnly: page === 1 }
       );
       
+      console.log('📨 MessageModel.getMessagesByConversation result:', JSON.stringify(result, null, 2));
+      
       if (result.success) {
-        res.json({
+        const responseData = {
           success: true,
           data: result.data,
           pagination: {
@@ -31,8 +62,12 @@ class MessageController {
             limit: parseInt(limit),
             total: result.count
           }
-        });
+        };
+        
+        console.log('✅ Sending successful response:', JSON.stringify(responseData, null, 2));
+        res.json(responseData);
       } else {
+        console.log('❌ Database error:', result.error);
         res.status(500).json({
           success: false,
           message: 'Error obteniendo mensajes',
@@ -40,7 +75,7 @@ class MessageController {
         });
       }
     } catch (error) {
-      console.error('Error obteniendo mensajes:', error);
+      console.error('💥 Error obteniendo mensajes:', error);
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor'
@@ -52,6 +87,9 @@ class MessageController {
   async createMessage(req, res) {
     try {
       const { conversacion_id, remitente_id, contenido } = req.body;
+      
+      console.log('🚀 MessageController.createMessage called with req.body:', JSON.stringify(req.body, null, 2));
+      console.log('📝 Extracted values:', { conversacion_id, remitente_id, contenido });
       
       if (!conversacion_id || !remitente_id || !contenido) {
         return res.status(400).json({
@@ -66,12 +104,20 @@ class MessageController {
         parseInt(remitente_id)
       );
 
+      console.log('🔐 userBelongsToConversation result:', belongsResult);
+
       if (!belongsResult.success || !belongsResult.belongs) {
         return res.status(403).json({
           success: false,
           message: 'No tienes permiso para enviar mensajes en esta conversación'
         });
       }
+
+      console.log('🎯 Calling MessageModel.createMessage with:', {
+        conversacion_id: parseInt(conversacion_id),
+        remitente_id: parseInt(remitente_id),
+        contenido: contenido
+      });
 
       const result = await MessageModel.createMessage(
         parseInt(conversacion_id),
@@ -80,6 +126,46 @@ class MessageController {
       );
       
       if (result.success) {
+        // Emitir evento en tiempo real
+        try {
+          const io = req.app.get('io');
+          if (io) {
+            const payload = {
+              id: result.data?.id,
+              conversacion_id: parseInt(conversacion_id),
+              remitente_id: parseInt(remitente_id),
+              contenido,
+              fecha_envio: result.data?.fecha_envio || new Date(),
+              remitente_nombre: result.data?.remitente_nombre,
+              leido: false
+            };
+            io.to(`conversation:${conversacion_id}`).emit('message:new', payload);
+            // Notificar a ambos participantes (para actualizar lista si no están en la sala)
+            const participantQuery = `
+              SELECT m.usuario1_id, m.usuario2_id
+              FROM conversaciones c
+              JOIN matches m ON c.match_id = m.id
+              WHERE c.id = $1
+              LIMIT 1
+            `;
+            const ConversationModel = require('../models/Conversation');
+            const participantsRes = await ConversationModel.customQuery(participantQuery, [parseInt(conversacion_id)]);
+            if (participantsRes.success && participantsRes.data[0]) {
+              const { usuario1_id, usuario2_id } = participantsRes.data[0];
+              const preview = contenido.slice(0, 60);
+              const updatePayload = {
+                conversacion_id: parseInt(conversacion_id),
+                ultimo_mensaje: preview,
+                ultimo_mensaje_fecha: payload.fecha_envio,
+                remitente_id: parseInt(remitente_id)
+              };
+              io.to(`user:${usuario1_id}`).emit('conversation:update', updatePayload);
+              io.to(`user:${usuario2_id}`).emit('conversation:update', updatePayload);
+            }
+          }
+        } catch (emitErr) {
+          console.error('⚠️ Error emitiendo evento socket:', emitErr.message);
+        }
         res.json({
           success: true,
           message: 'Mensaje enviado correctamente',
