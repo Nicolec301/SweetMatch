@@ -128,6 +128,41 @@ class ApiService {
     });
   }
 
+  // Subir foto de usuario (principal o adicional)
+  async uploadUserPhoto(userId, file, { es_principal = false } = {}) {
+    const endpoint = `/users/${userId}/photos`;
+    const url = `${this.baseUrl}${endpoint}`;
+    const formData = new FormData();
+    formData.append('foto', file);
+    formData.append('es_principal', es_principal ? 'true' : 'false');
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.message || 'Error al subir foto');
+        error.status = response.status;
+        error.data = data;
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error subiendo foto:', error);
+      return { success: false, message: error.message };
+    }
+  }
+
+  async getUserPhotos(userId) {
+    return this.request(`/users/${userId}/photos`);
+  }
+
+  async setPrincipalPhoto(userId, photoId) {
+    return this.request(`/users/${userId}/photos/${photoId}/principal`, { method: 'PUT' });
+  }
+
   // Métodos para matches
   async getMatches() {
     return this.request('/matches');

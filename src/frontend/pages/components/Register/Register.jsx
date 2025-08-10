@@ -186,21 +186,36 @@ const Register = () => {
 
       // Enviar datos al backend usando el endpoint de registro con hash
       const response = await ApiService.registerUser(userData);
-      
+
       if (response.success) {
-        alert('¡Registro completado con éxito!');
-        
-        // Si el registro fue exitoso y hay un usuario, redirigir a completar perfil
+        // Guardar usuario en sesión inicial
         if (response.data && response.data.id) {
-          // Actualizar sessionManager con los datos del usuario registrado
           const sessionManager = SessionManager.getInstance();
-          sessionManager.setUser(response.data);
-          
-          // Redirigir a completar perfil
+          let userStored = { ...response.data };
+          sessionManager.setUser(userStored);
+
+          // Subir foto principal si el usuario seleccionó una
+            if (formData.foto) {
+              try {
+                const uploadRes = await ApiService.uploadUserPhoto(response.data.id, formData.foto, { es_principal: true });
+                if (uploadRes.success) {
+                  // Actualizar usuario en sesión con la ruta de la foto
+                  userStored = { ...userStored, foto_principal: uploadRes.url };
+                  sessionManager.updateUser(userStored);
+                } else {
+                  console.warn('No se pudo subir la foto de perfil durante registro:', uploadRes.message);
+                }
+              } catch (upErr) {
+                console.warn('Error subiendo foto de perfil inicial:', upErr);
+              }
+            }
+
+          alert('¡Registro completado con éxito!');
+          // Redirigir a completar perfil (información adicional)
           navigate('/complete-profile');
         } else {
-          // Si no hay datos del usuario, ir a login
-          navigate('/login');
+          // Fallback: si no se devolvió data de usuario
+            navigate('/login');
         }
       } else {
         setError(response.message || 'Error al crear usuario');
@@ -450,6 +465,18 @@ const Register = () => {
                 onChange={handleChange}
                 className="file-input" 
               />
+              {formData.foto && (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <strong>Vista previa:</strong>
+                  <div style={{marginTop:'0.5rem'}}>
+                    <img 
+                      src={URL.createObjectURL(formData.foto)} 
+                      alt="Vista previa" 
+                      style={{maxWidth:'180px', borderRadius:'8px', boxShadow:'0 2px 6px rgba(0,0,0,0.15)'}}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="form-navigation">

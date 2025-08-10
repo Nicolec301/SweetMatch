@@ -161,10 +161,29 @@ const CompleteProfile = () => {
         return;
       }
 
-      // Enviar datos al backend
+      // Enviar datos del perfil al backend
       const response = await ApiService.completeProfile(profileData);
 
       if (response.success) {
+        // Subir foto principal si existe
+        if (formData.foto_perfil) {
+          const uploadMain = await ApiService.uploadUserPhoto(numericId, formData.foto_perfil, { es_principal: true });
+          if (!uploadMain.success) {
+            console.warn('No se pudo subir foto principal:', uploadMain.message);
+          } else if (uploadMain.url) {
+            // Guardar la ruta de la foto principal para sesión
+            sessionManager.updateUser({ ...sessionUser, foto_principal: uploadMain.url });
+          }
+        }
+
+        // Subir fotos adicionales secuencialmente
+        for (const extra of formData.fotos_adicionales) {
+          const up = await ApiService.uploadUserPhoto(numericId, extra, { es_principal: false });
+          if (!up.success) {
+            console.warn('Error subiendo foto adicional:', up.message);
+          }
+        }
+
         // Preferir datos del backend (normalizados) si están disponibles
         const apiUser = response.data || null;
         const updatedUser = apiUser
@@ -175,11 +194,11 @@ const CompleteProfile = () => {
         console.log('✅ Perfil completado. Redirigiendo al Home…');
 
         // Redirigir al Home y reemplazar historial para evitar volver al formulario
-        navigate('/', { replace: true });
+        navigate('/busqueda', { replace: true });
         // Fallback: si navigate no aplica por alguna razón del entorno, forzar redirección
         setTimeout(() => {
-          if (window?.location?.pathname !== '/') {
-            window.location.replace('/');
+          if (window?.location?.pathname !== '/busqueda') {
+            window.location.replace('/busqueda');
           }
         }, 100);
         return;

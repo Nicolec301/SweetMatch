@@ -6,6 +6,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { testConnection } = require('./config/database');
 const { SERVER_CONFIG } = require('./config');
 
@@ -31,6 +32,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir archivos subidos (fotos de usuarios)
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 // Usar rutas de la API
 app.use('/api', apiRoutes);
