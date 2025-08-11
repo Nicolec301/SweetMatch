@@ -1,48 +1,24 @@
-// Verificación real de Google ID Token
-const { GOOGLE_CLIENT_ID } = require('../config/index');
-const { OAuth2Client } = require('google-auth-library');
+// Configuración de Google Auth para el frontend
+import { GOOGLE_CLIENT_ID } from '../../config';
 
-class GoogleAuthService {
-  constructor() {
-    this.clientId = GOOGLE_CLIENT_ID;
-    this.client = new OAuth2Client(this.clientId);
+/**
+ * Inicializa la configuración de Google OAuth en el frontend
+ */
+const initializeGoogleAuth = () => {
+  // Verificar que tenemos un ID de cliente válido
+  if (!GOOGLE_CLIENT_ID) {
+    console.error('ERROR: No se ha configurado el ID de cliente de Google.');
+    return false;
   }
 
-  /**
-   * Verifica el ID token de Google y retorna datos del usuario.
-   * No hardcodea ningún usuario; usa únicamente los datos del token.
-   */
-  async verifyToken(idToken) {
-    try {
-      if (!idToken) {
-        throw new Error('Token no proporcionado');
-      }
+  // Configurar el script de Google
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.defer = true;
+  document.body.appendChild(script);
 
-      const ticket = await this.client.verifyIdToken({
-        idToken,
-        audience: this.clientId
-      });
+  return true;
+};
 
-      const payload = ticket.getPayload();
-      if (!payload) {
-        throw new Error('Token inválido');
-      }
-
-      // Datos comunes del payload: sub (ID), email, name, given_name, family_name, picture
-      return {
-        valid: true,
-        user: {
-          id: payload.sub,
-          email: payload.email,
-          name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim(),
-          picture: payload.picture
-        }
-      };
-    } catch (error) {
-      console.error('Error verificando token de Google:', error.message);
-      return { valid: false, error: error.message };
-    }
-  }
-}
-
-module.exports = new GoogleAuthService();
+export default initializeGoogleAuth;

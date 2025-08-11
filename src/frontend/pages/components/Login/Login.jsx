@@ -4,7 +4,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import GifCora from '../../../images/GifCora.webp';
 import { GoogleLogin } from '@react-oauth/google';
-import { handleGoogleLogin, handleTraditionalLogin, isAuthenticated } from '../../../../services/sessionUtils';
+import { handleGoogleLogin, handleTraditionalLogin, isAuthenticated } from '../../../../backend/services/sessionUtils';
 import '../../../styles/modules/login/formulario.css';
 
 const Login = () => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '../Header';
-import ChatService from '../../../../services/ChatService';
-import SearchService from '../../../../services/SearchService';
-import SessionManager from '../../../../services/SessionManager';
+import ChatService from '../../../../backend/services/ChatService';
+import SearchService from '../../../../backend/services/SearchService';
+import SessionManager from '../../../../backend/services/SessionManager';
 import './Chat.css';
 import { io } from 'socket.io-client';
 import { SOCKET_BASE_URL } from '../../../../config';

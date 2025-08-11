@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
 import GifCora from '../../../images/GifCora.webp';
-import ApiService from '../../../../services/ApiService';
-import SessionManager from '../../../../services/SessionManager';
+import ApiService from '../../../../backend/services/ApiService';
+import SessionManager from '../../../../backend/services/SessionManager';
 import '../../../styles/modules/crearCuenta/formularioCrear.css';
 
 const Register = () => {

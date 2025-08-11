@@ -1,5 +1,5 @@
 // Servicio para comunicarse con la API backend
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config';
 
 class ApiService {
   constructor() {

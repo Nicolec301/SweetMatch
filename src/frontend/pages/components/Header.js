@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../images/logo.svg';
-import SessionManager from '../../../services/SessionManager';
+import SessionManager from '../../../backend/services/SessionManager';
 import UserMenu from './UserMenu/UserMenu';
 import '../../styles/components/header.css';
 

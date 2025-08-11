@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
-import SessionManager from '../../../../services/SessionManager';
-import ApiService from '../../../../services/ApiService';
+import SessionManager from '../../../../backend/services/SessionManager';
+import ApiService from '../../../../backend/services/ApiService';
 import './CompleteProfile.css';
 
 const CompleteProfile = () => {

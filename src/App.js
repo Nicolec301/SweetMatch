@@ -8,7 +8,7 @@ import Chat from './frontend/pages/components/Chat/Chat';
 import Busqueda from './frontend/pages/components/Busqueda/Busqueda';
 import Perfil from './frontend/pages/components/Perfil/Perfil';
 import EnLinea from './frontend/pages/components/EnLinea/EnLinea';
-import initializeGoogleAuth from './services/googleAuthService';
+import initializeGoogleAuth from './backend/services/googleAuthService';
 
 // Importar estilos
 import './frontend/styles/main.css';

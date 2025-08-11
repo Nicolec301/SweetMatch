@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
-import SessionManager from '../../../../services/SessionManager';
+import SessionManager from '../../../../backend/services/SessionManager';
 import './Perfil.css';
 
 const Perfil = () => {
