@@ -41,13 +41,12 @@ const UserMenu = () => {
       <div className="user-avatar" onClick={toggleMenu}>
         <div className="user-status"></div>
         {user.foto ? (
-          <img src={user.foto} alt="Usuario" className="avatar-image" />
+          <img src={user.foto} alt={user.nombre || "Usuario"} className="avatar-image" />
         ) : (
           <div className="avatar-placeholder">
             {sessionManager.getInitials()}
           </div>
         )}
-        <span className="user-name">Usuario</span>
         <span className="dropdown-arrow">▼</span>
       </div>
 

@@ -21,7 +21,7 @@ const corsOptions = {
   origin: [
     'http://localhost:3000', // Puerto por defecto de React
     'http://localhost:3001', // Puerto actual del frontend
-    'http://localhost:3002', // Puerto del backend (por si acaso)
+    'http://localhost:3002', // Puerto del backend 
     process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000'
   ],
   credentials: true,
