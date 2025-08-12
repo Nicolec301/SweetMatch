@@ -1,53 +1,86 @@
-# Sistema CRUD Generalizado - SweetMatch
+# 🗄️ Models - Modelos de Datos del Backend
 
-## Descripción
+Esta carpeta contiene todos los modelos de datos que representan las entidades del negocio de SweetMatch, implementando el patrón Active Record y la lógica de acceso a datos.
 
-Este sistema CRUD generalizado proporciona una abstracción completa para todas las operaciones de base de datos en SweetMatch. Está construido sobre PostgreSQL y utiliza el patrón de Repository con herencia para maximizar la reutilización de código.
+## 📁 Estructura de Models
 
-## Arquitectura
+```
+models/
+├── 📄 BaseModel.js        # Modelo base con funcionalidades comunes
+├── 📄 User.js             # Modelo de usuarios y perfiles
+├── 📄 UserPhoto.js        # Modelo de fotos de usuarios
+├── 📄 Interest.js         # Modelo de intereses y categorías
+├── 📄 Match.js            # Modelo de matches y likes
+├── 📄 Conversation.js     # Modelo de conversaciones
+├── 📄 Message.js          # Modelo de mensajes individuales
+├── 📄 index.js            # Exportaciones y configuración de modelos
+└── 📄 README.md           # Documentación de modelos (este archivo)
+```
 
-### BaseModel
-El `BaseModel` es la clase base que proporciona todas las operaciones CRUD estándar:
+---
 
-- `findAll(filters, options)` - Obtener todos los registros con filtros y paginación
-- `findById(id)` - Obtener un registro por ID
-- `findOne(conditions)` - Buscar un registro que cumpla condiciones específicas
-- `create(data)` - Crear un nuevo registro
-- `update(id, data)` - Actualizar un registro existente
-- `delete(id)` - Eliminar un registro
-- `count(filters)` - Contar registros con filtros
-- `customQuery(query, params)` - Ejecutar consultas SQL personalizadas
-- `transaction(callback)` - Ejecutar operaciones en transacción
+## 🏗️ BaseModel.js - Modelo Base
 
-### Modelos Especializados
+**Propósito**: Proporciona funcionalidades comunes a todos los modelos como CRUD básico, validaciones, timestamps y manejo de errores.
 
-Cada modelo extiende `BaseModel` y agrega funcionalidades específicas:
+### **Funcionalidades principales**:
 
-#### UserModel (`models/User.js`)
-- `createUserWithInterests(userData, intereses)` - Crear usuario con intereses
-- `getUserWithInterests(userId)` - Obtener usuario con sus intereses
-- `validateCredentials(email, password)` - Validar login
-- `existsByEmail(email)` - Verificar si existe usuario por email
-- `getUsers(filters, pagination)` - Listar usuarios con paginación
-
-#### MatchModel (`models/Match.js`)
-- `getMatchesByUser(userId, estado)` - Obtener matches de un usuario
-- `createMatch(usuario1Id, usuario2Id, estado)` - Crear match entre usuarios
-- `updateMatchStatus(matchId, nuevoEstado)` - Actualizar estado de match
-- `checkMutualMatch(usuario1Id, usuario2Id)` - Verificar match mutuo
-
-#### MessageModel (`models/Message.js`)
-- `getMessagesByConversation(conversationId, options)` - Mensajes de una conversación
-- `createMessage(conversationId, senderId, content)` - Crear mensaje
-- `markAsRead(conversationId, userId)` - Marcar mensajes como leídos
-- `getLastMessage(conversationId)` - Último mensaje de conversación
-- `getUnreadCount(userId)` - Contar mensajes no leídos
-
-#### ConversationModel (`models/Conversation.js`)
-- `getUserConversations(userId)` - Conversaciones de un usuario
-- `getOrCreateConversation(user1Id, user2Id)` - Crear/obtener conversación
-- `userBelongsToConversation(conversationId, userId)` - Verificar pertenencia
-- `getConversationDetails(conversationId, currentUserId)` - Detalles de conversación
+```javascript
+class BaseModel {
+  constructor(tableName, primaryKey = 'id') {
+    this.tableName = tableName;
+    this.primaryKey = primaryKey;
+    this.db = require('../config/database');
+  }
+  
+  // CRUD básico
+  async findById(id) {
+    try {
+      const query = `SELECT * FROM ${this.tableName} WHERE ${this.primaryKey} = $1`;
+      const result = await this.db.query(query, [id]);
+      
+      return {
+        success: true,
+        found: result.rows.length > 0,
+        data: result.rows[0] || null
+      };
+    } catch (error) {
+      return this.handleError(error, 'findById');
+    }
+  }
+  
+  async findMany(conditions = {}, options = {}) {
+    try {
+      const { limit = 50, offset = 0, orderBy = 'created_at DESC' } = options;
+      
+      let query = `SELECT * FROM ${this.tableName}`;
+      const params = [];
+      
+      // Construir WHERE clause dinámicamente
+      if (Object.keys(conditions).length > 0) {
+        const whereClause = Object.keys(conditions)
+          .map((key, index) => `${key} = $${index + 1}`)
+          .join(' AND ');
+        
+        query += ` WHERE ${whereClause}`;
+        params.push(...Object.values(conditions));
+      }
+      
+      query += ` ORDER BY ${orderBy} LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+      params.push(limit, offset);
+      
+      const result = await this.db.query(query, params);
+      
+      return {
+        success: true,
+        data: result.rows,
+        count: result.rowCount
+      };
+    } catch (error) {
+      return this.handleError(error, 'findMany');
+    }
+  }
+}
 
 #### InterestModel (`models/Interest.js`)
 - `getAllInterests()` - Todos los intereses ordenados

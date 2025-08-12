@@ -1,14 +1,11 @@
-/**
- * Backend Principal de SweetMatch
- * Servidor Express con conexión a PostgreSQL
- */
-
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const { testConnection } = require('./config/database');
 const { SERVER_CONFIG } = require('./config');
+const corsOptions = require('./config/cors');
+const ErrorHandler = require('./utils/errorHandler');
+const logger = require('./utils/logger');
 
 // Importar rutas
 const apiRoutes = require('./routes/api');
@@ -16,45 +13,46 @@ const apiRoutes = require('./routes/api');
 // Crear aplicación Express
 const app = express();
 
-// Configurar CORS para permitir frontend en puerto 3001
-const corsOptions = {
-  origin: [
-    'http://localhost:3000', // Puerto por defecto de React
-    'http://localhost:3001', // Puerto actual del frontend
-    'http://localhost:3002', // Puerto del backend 
-    process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000'
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200 // Para legacy browsers
-};
+// Middleware de logging para requests
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.request(req, res, duration);
+  });
+  
+  next();
+});
 
 // Middlewares
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(require('cors')(corsOptions));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Servir archivos subidos (fotos de usuarios)
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
-// Usar rutas de la API
-app.use('/api', apiRoutes);
-
-// Middleware de manejo de errores
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Error interno del servidor',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Algo salió mal'
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
-// Middleware para rutas no encontradas (excluye path de socket.io para permitir handshake)
+// Usar rutas de la API
+app.use('/api', apiRoutes);
+
+// Middlewares de manejo de errores
+app.use('*', ErrorHandler.notFound);
+app.use(ErrorHandler.handle);
+
+// Middleware para rutas no encontradas (Socket.io compatible)
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/socket.io')) return next();
-  res.status(404).json({
-    error: 'Ruta no encontrada',
-    message: `No se pudo encontrar ${req.originalUrl}`
-  });
+  ErrorHandler.notFound(req, res);
 });
 
 // Inicializar servidor
@@ -66,49 +64,51 @@ async function startServer() {
       throw new Error('No se pudo conectar a la base de datos');
     }
 
+    logger.info('Conexión a base de datos establecida');
+
     // Iniciar servidor con Socket.io
     const port = SERVER_CONFIG.port;
     const httpServer = require('http').createServer(app);
     const { Server } = require('socket.io');
     const io = new Server(httpServer, {
-      cors: {
-        origin: corsOptions.origin,
-        credentials: true
-      }
+      cors: corsOptions
     });
 
     // Compartir instancia de io globalmente
     app.set('io', io);
 
     io.on('connection', (socket) => {
-      console.log('🔌 Cliente conectado', socket.id);
+      logger.info('Cliente conectado vía Socket.io', { socketId: socket.id });
 
       // Unirse a salas de conversación
       socket.on('joinConversation', (conversationId) => {
         socket.join(`conversation:${conversationId}`);
+        logger.debug('Usuario se unió a conversación', { socketId: socket.id, conversationId });
       });
 
       // Unirse a sala personal de usuario (para notificaciones)
       socket.on('joinUser', (userId) => {
         socket.join(`user:${userId}`);
+        logger.debug('Usuario se unió a sala personal', { socketId: socket.id, userId });
       });
 
       socket.on('disconnect', () => {
-        console.log('🔌 Cliente desconectado', socket.id);
+        logger.info('Cliente desconectado', { socketId: socket.id });
       });
     });
 
     httpServer.listen(port, () => {
-      // eslint-disable-next-line no-console
+      logger.info('Servidor SweetMatch iniciado exitosamente', { 
+        port,
+        environment: process.env.NODE_ENV || 'development'
+      });
       console.log(`🚀 Servidor SweetMatch iniciado en puerto ${port}`);
-      // eslint-disable-next-line no-console
       console.log(`📱 API disponible en http://localhost:${port}/api`);
-      // eslint-disable-next-line no-console
-      console.log(`🩺 Health check: http://localhost:${port}/api/health`);
+      console.log(`🩺 Health check: http://localhost:${port}/health`);
     });
 
   } catch (error) {
-    // eslint-disable-next-line no-console
+    logger.error('Error crítico iniciando servidor', error);
     console.error('❌ Error iniciando servidor:', error.message);
     process.exit(1);
   }

@@ -1,220 +1,262 @@
-# Estructura de Estilos CSS - SweetMatch
+# 🎨 Sistema de Estilos - SweetMatch
 
-Este documento describe la nueva arquitectura modular de CSS para el proyecto SweetMatch.
+Sistema de estilos CSS modular y escalable para SweetMatch, organizado con metodología de componentes y arquitectura mantenible.
 
-## 📁 Estructura de Directorios
+## 📁 Estructura del Sistema de Estilos
 
 ```
-src/frontend/styles/
-├── main.css                     # Archivo principal que importa todos los módulos
-├── base/                        # Configuraciones base
-│   └── variables.css           # Variables CSS globales
-├── components/                  # Componentes reutilizables
-│   ├── buttons.css            # Estilos de botones
-│   ├── cards.css              # Estilos de tarjetas
-│   ├── forms.css              # Estilos de formularios
-│   ├── header.css             # Estilos del header
-│   ├── footer.css             # Estilos del footer
-│   ├── hero.css               # Estilos de secciones hero
-│   ├── layout.css             # Estilos de layout general
-│   ├── user-menu.css          # Estilos del menú de usuario
-│   └── utilities.css          # Utilidades generales
-└── modules/                   # Módulos específicos por funcionalidad
-    ├── home/                  # Módulos específicos de la página Home
-    │   ├── index.css          # Índice del módulo Home
-    │   ├── steps.css          # Sección "Cómo funciona"
-    │   └── utilities.css      # Utilidades específicas de Home
-    ├── features/              # Módulo de características
-    │   ├── index.css          # Índice del módulo Features
-    │   └── features.css       # Estilos de la sección características
-    ├── matches/               # Módulo de matches/perfiles
-    │   ├── index.css          # Índice del módulo Matches
-    │   └── matches.css        # Estilos de perfiles y matches
-    ├── testimonials/          # Módulo de testimoniales
-    │   ├── index.css          # Índice del módulo Testimonials
-    │   └── testimonials.css   # Estilos de experiencias y testimonios
-    ├── login/                 # Módulo de login
-    │   └── formulario.css     # Estilos del formulario de login
-    └── crearCuenta/          # Módulo de registro
-        └── formularioCrear.css # Estilos del formulario de registro
+styles/
+├── 📄 config.json              # Configuración del sistema de estilos
+├── 📄 main.css                 # Archivo principal que importa todos los estilos
+├── 📄 styles.css               # Estilos globales y utilidades generales
+├── 📂 base/                    # Variables y configuraciones base
+│   └── variables.css           # Variables CSS (colores, tipografías, espaciados)
+├── 📂 components/              # Estilos de componentes reutilizables
+│   ├── buttons.css             # Estilos de botones
+│   ├── cards.css               # Tarjetas y contenedores
+│   ├── components.css          # Componentes generales
+│   ├── footer.css              # Footer del sitio
+│   ├── forms.css               # Formularios y inputs
+│   ├── header.css              # Header y navegación
+│   ├── hero.css                # Sección hero/banner
+│   ├── layout.css              # Layout y estructura
+│   ├── user-menu.css           # Menú de usuario
+│   └── utilities.css           # Clases utilitarias
+└── 📂 modules/                 # Estilos específicos de módulos/páginas
+    ├── 📂 crearCuenta/         # Módulo de registro
+    ├── 📂 features/            # Módulo de características
+    ├── 📂 home/                # Módulo de página principal
+    ├── 📂 login/               # Módulo de login
+    ├── 📂 matches/             # Módulo de matches
+    └── 📂 testimonials/        # Módulo de testimoniales
 ```
 
-## 🎯 Principios de la Arquitectura
+## ⚙️ Configuración del Sistema
 
-### 1. **Separación por Responsabilidad**
-- **Base**: Variables, reset, configuraciones globales
-- **Components**: Elementos reutilizables en toda la aplicación  
-- **Modules**: Funcionalidades específicas de páginas o secciones
+### **config.json**
+Archivo de configuración que define la estructura y organización del sistema CSS:
 
-### 2. **Nomenclatura BEM-like**
-```css
-/* Bloque */
-.match-card { }
-
-/* Elemento */
-.match-card__image { }
-.match-card__content { }
-
-/* Modificador */
-.match-card--featured { }
-.match-card--online { }
-```
-
-### 3. **Variables CSS**
-Todas las variables están centralizadas en `base/variables.css`:
-```css
-:root {
-  --primary: #ff4778;
-  --secondary: #ff6b9d;
-  --text-dark: #2c3e50;
-  --bg-light: #f8f9fa;
-  /* ... más variables */
-}
-```
-
-### 4. **Responsive Design**
-Cada módulo incluye sus propias media queries:
-```css
-/* Móvil primero */
-.feature-container {
-  grid-template-columns: 1fr;
-}
-
-/* Tablet y desktop */
-@media (min-width: 768px) {
-  .feature-container {
-    grid-template-columns: repeat(3, 1fr);
+```json
+{
+  "name": "SweetMatch CSS Modules Configuration",
+  "version": "1.0.0",
+  "description": "Configuración de la arquitectura CSS modular para SweetMatch",
+  "structure": {
+    "main": "main.css",
+    "base": { "variables": "base/variables.css" },
+    "components": [...],
+    "modules": {...}
   }
 }
 ```
 
-## 🚀 Cómo Usar
+## 📄 Archivos Principales
 
-### Importación Principal
-El archivo `main.css` ya importa todos los módulos necesarios:
+### **main.css**
+**Descripción**: Archivo principal que importa todo el sistema de estilos
+**Función**: 
+- Imports organizados por categorías
+- Orden de carga optimizado
+- Punto de entrada único para toda la aplicación
 
-```javascript
-// En App.js
-import './frontend/styles/main.css';
-```
-
-### Agregar Nuevos Módulos
-
-1. **Crear directorio del módulo**:
-   ```
-   src/frontend/styles/modules/nuevoModulo/
-   ```
-
-2. **Crear archivos CSS**:
-   ```
-   nuevoModulo/
-   ├── index.css      # Índice del módulo
-   ├── estilos.css    # Estilos principales
-   └── components.css # Componentes específicos
-   ```
-
-3. **Importar en main.css**:
-   ```css
-   @import './modules/nuevoModulo/index.css';
-   ```
-
-### Agregar Nuevos Componentes
-
-1. **Crear archivo en components/**:
-   ```
-   src/frontend/styles/components/nuevoComponente.css
-   ```
-
-2. **Importar en main.css**:
-   ```css
-   @import './components/nuevoComponente.css';
-   ```
-
-## 📦 Módulos Disponibles
-
-### 🏠 **Home Module**
-- **steps.css**: Estilos para la sección "Cómo funciona"
-- **utilities.css**: Utilidades específicas de la página home
-
-### ⭐ **Features Module**  
-- **features.css**: Estilos para la sección "Por qué elegir SweetMatch"
-
-### 💕 **Matches Module**
-- **matches.css**: Estilos para perfiles destacados y tarjetas de usuario
-
-### 💬 **Testimonials Module**
-- **testimonials.css**: Estilos para experiencias y testimonios de usuarios
-
-### 🔐 **Auth Modules**
-- **login/formulario.css**: Estilos del formulario de inicio de sesión
-- **crearCuenta/formularioCrear.css**: Estilos del formulario de registro
-
-## 🎨 Clases Utilitarias
-
-### Espaciado
+**Estructura de imports**:
 ```css
-.spacing-small    /* margin: 1rem 0 */
-.spacing-medium   /* margin: 2rem 0 */
-.spacing-large    /* margin: 3rem 0 */
-.spacing-xl       /* margin: 4rem 0 */
+/* Base - Variables y configuraciones fundamentales */
+@import './base/variables.css';
+
+/* Componentes reutilizables */
+@import './components/buttons.css';
+@import './components/hero.css';
+/* ... más componentes */
+
+/* Módulos específicos de páginas */
+@import './modules/home/steps.css';
+/* ... más módulos */
 ```
 
-### Efectos Visuales
+### **styles.css**
+**Descripción**: Estilos globales y utilidades generales
+**Contenido**:
+- Reset CSS básico
+- Clases utilitarias globales
+- Estilos base del body y html
+- Configuraciones generales de la aplicación
+
+## 🎨 Metodología CSS
+
+### **Arquitectura ITCSS (Inverted Triangle CSS)**
+1. **Settings** → Variables y configuraciones
+2. **Tools** → Mixins y funciones (futuro)
+3. **Generic** → Reset y normalize
+4. **Elements** → Estilos base de elementos HTML
+5. **Objects** → Patrones de diseño reutilizables
+6. **Components** → Componentes específicos de UI
+7. **Utilities** → Clases utilitarias y helpers
+
+### **Nomenclatura BEM**
 ```css
-.glassmorphism    /* Efecto cristal */
-.gradient-bg      /* Fondo degradado */
-.shadow-soft      /* Sombra suave */
-.shadow-strong    /* Sombra pronunciada */
+.block {}
+.block__element {}
+.block--modifier {}
+.block__element--modifier {}
 ```
 
-### Animaciones
+**Ejemplo**:
 ```css
-.fade-in          /* Animación de aparición */
-.slide-up         /* Deslizar hacia arriba */
-.bounce-in        /* Animación rebote */
-.hover-lift       /* Efecto hover elevación */
+.user-menu {}                    /* Block */
+.user-menu__avatar {}            /* Element */
+.user-menu--open {}              /* Modifier */
+.user-menu__avatar--active {}    /* Element + Modifier */
 ```
 
-### Layout
-```css
-.flex-center      /* Centrar con flexbox */
-.flex-between     /* Distribuir con flexbox */
-.grid-2           /* Grid de 2 columnas */
-.grid-3           /* Grid de 3 columnas */
-.text-center      /* Texto centrado */
-```
+## 🎯 Categorías de Estilos
 
-## 🔧 Mantenimiento
+### **📂 Base/**
+**Variables fundamentales del sistema**:
+- Colores principales y secundarios
+- Tipografías y tamaños de fuente
+- Espaciados y márgenes
+- Breakpoints para responsive design
+- Transiciones y animaciones base
 
-### Agregar Variables
-Editar `base/variables.css`:
+### **📂 Components/**
+**Componentes reutilizables**:
+
+| Archivo | Descripción |
+|---------|-------------|
+| `buttons.css` | Botones primarios, secundarios, iconos |
+| `cards.css` | Tarjetas de contenido, perfiles |
+| `forms.css` | Inputs, formularios, validaciones |
+| `header.css` | Navegación, header responsive |
+| `hero.css` | Sección hero, banners llamativos |
+| `layout.css` | Grid, contenedores, estructuras |
+| `user-menu.css` | Menú desplegable del usuario |
+| `utilities.css` | Clases helper y utilitarias |
+
+### **📂 Modules/**
+**Estilos específicos por página**:
+
+#### **🏠 home/**
+- `index.css` - Estilos principales del home
+- `steps.css` - Sección de "Cómo funciona"
+- `utilities.css` - Utilidades específicas del home
+- `welcome.css` - Sección de bienvenida
+
+#### **✨ features/**
+- `index.css` - Estructura del módulo
+- `features.css` - Características y funcionalidades
+
+#### **💕 matches/**
+- `index.css` - Layout de matches
+- `matches.css` - Tarjetas y animaciones de matches
+
+#### **💬 testimonials/**
+- `index.css` - Estructura de testimoniales
+- `testimonials.css` - Estilos de reseñas y testimonios
+
+#### **🔐 Auth Modules**
+- `login/formulario.css` - Formulario de login
+- `crearCuenta/formularioCrear.css` - Formulario de registro
+
+## 🎨 Sistema de Colores
+
+### **Paleta Principal** (definida en variables.css):
 ```css
 :root {
-  --nueva-variable: valor;
+  --primary-color: #ff6b9d;      /* Rosa principal */
+  --secondary-color: #ff8a9b;    /* Rosa claro */
+  --accent-color: #4CAF50;       /* Verde para éxito */
+  --text-primary: #333333;       /* Texto principal */
+  --text-secondary: #666666;     /* Texto secundario */
+  --background: #ffffff;         /* Fondo principal */
+  --surface: #f8f9fa;           /* Superficie */
 }
 ```
 
-### Optimización
-- Usar variables CSS para valores repetidos
-- Agrupar media queries al final de cada archivo
-- Mantener especificidad baja
-- Comentar código complejo
+### **Estados**:
+```css
+--success: #4CAF50;
+--warning: #FFA726;
+--error: #F44336;
+--info: #2196F3;
+```
 
-### Testing
-Probar en diferentes dispositivos:
-- Móvil: 320px - 767px  
-- Tablet: 768px - 1023px
-- Desktop: 1024px+
+## 📱 Responsive Design
 
-## 🚨 Reglas de Desarrollo
+### **Breakpoints**:
+```css
+--mobile: 320px;
+--tablet: 768px;
+--desktop: 1024px;
+--large: 1440px;
+```
 
-1. **No usar `!important`** a menos que sea absolutamente necesario
-2. **Usar variables CSS** para valores recurrentes  
-3. **Mantener especificidad baja** (máximo 2-3 niveles)
-4. **Incluir comentarios** en código complejo
-5. **Probar responsive design** en todos los breakpoints
-6. **Validar CSS** antes de hacer commit
+### **Estrategia Mobile-First**:
+```css
+/* Mobile por defecto */
+.component {}
+
+/* Tablet y superior */
+@media (min-width: 768px) {
+  .component {}
+}
+
+/* Desktop y superior */
+@media (min-width: 1024px) {
+  .component {}
+}
+```
+
+## 🧩 Componentes Destacados
+
+### **Sistema de Botones**:
+- `.btn-primary` - Botón principal (rosa)
+- `.btn-secondary` - Botón secundario (outline)
+- `.btn-success` - Botón de éxito (verde)
+- `.btn-icon` - Botones solo con icono
+- `.btn-floating` - Botones flotantes
+
+### **Sistema de Cards**:
+- `.card` - Tarjeta base
+- `.profile-card` - Tarjetas de perfil
+- `.match-card` - Tarjetas de matches con animaciones
+- `.testimonial-card` - Tarjetas de testimonios
+
+### **Sistema de Forms**:
+- `.form-group` - Grupos de campos
+- `.form-input` - Inputs estilizados
+- `.form-error` - Estados de error
+- `.form-success` - Estados de éxito
+
+## 🚀 Optimizaciones
+
+### **Performance**:
+- CSS crítico inlined
+- Imports organizados por prioridad
+- Clases utilitarias para reducir CSS duplicado
+- Variables CSS para theming dinámico
+
+### **Mantenibilidad**:
+- Un archivo por componente
+- Nomenclatura consistente
+- Documentación en comentarios
+- Organización lógica de propiedades
+
+## 📋 Guías de Uso
+
+### **Para añadir nuevos estilos**:
+1. **Componente nuevo** → Crear archivo en `/components/`
+2. **Página específica** → Crear en `/modules/pagina/`
+3. **Variable nueva** → Añadir a `/base/variables.css`
+4. **Import** → Agregar al `main.css`
+
+### **Convenciones**:
+- Usar variables CSS para valores reutilizables
+- Seguir metodología BEM para nomenclatura
+- Mobile-first para responsive
+- Comentar secciones complejas
+- Un archivo por componente lógico
 
 ---
 
-*Documentación actualizada: 6 de agosto de 2025*
+*Este sistema de estilos proporciona una base sólida y escalable para el crecimiento continuo de SweetMatch, manteniendo la consistencia visual y la facilidad de mantenimiento.*
