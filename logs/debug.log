@@ -10,3 +10,6 @@
 {"timestamp":"2025-08-12T16:58:38.218Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"hEo_WFbzCmh0hVWFAAAD","userId":9}
 {"timestamp":"2025-08-12T17:03:35.785Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"1ENxUboynbltCTN5AAAF","userId":7}
 {"timestamp":"2025-08-12T17:03:36.036Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"1ENxUboynbltCTN5AAAF","conversationId":"8"}
+{"timestamp":"2025-08-12T17:08:57.934Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"5x9gVU4SLbw-XdgHAAAH","userId":7}
+{"timestamp":"2025-08-12T17:08:58.150Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"5x9gVU4SLbw-XdgHAAAH","conversationId":"6"}
+{"timestamp":"2025-08-12T17:09:04.135Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"5x9gVU4SLbw-XdgHAAAH","conversationId":"8"}
