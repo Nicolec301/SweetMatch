@@ -6,7 +6,8 @@ const logger = require('../utils/logger');
 
 class UploadService {
   constructor() {
-    this.uploadDir = path.join(process.cwd(), 'public', 'uploads', 'users');
+    // Ruta desde la raíz del proyecto principal, no desde src/backend
+    this.uploadDir = path.join(__dirname, '..', '..', '..', 'public', 'uploads', 'users');
     this.ensureUploadDirectory();
     this.setupMulter();
   }

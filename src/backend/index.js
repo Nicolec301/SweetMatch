@@ -31,7 +31,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Servir archivos subidos (fotos de usuarios)
-app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+// Ruta desde la raíz del proyecto principal, no desde src/backend
+app.use('/uploads', express.static(path.join(__dirname, '..', '..', 'public', 'uploads')));
+
+// Servir imágenes de demo y recursos estáticos
+app.use('/images', express.static(path.join(__dirname, '..', '..', 'public', 'images')));
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -164,6 +164,16 @@ class UserModel extends BaseModel {
 
     return await this.findAll(filters, options);
   }
+
+  /**
+   * Actualizar campos específicos del usuario
+   * @param {number} userId - ID del usuario
+   * @param {Object} fields - Campos a actualizar
+   * @returns {Object} Resultado de la actualización
+   */
+  async updateUserFields(userId, fields) {
+    return await this.update(userId, fields);
+  }
 }
 
 module.exports = new UserModel();

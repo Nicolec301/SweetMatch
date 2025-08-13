@@ -170,17 +170,19 @@ const CompleteProfile = () => {
           const uploadMain = await ApiService.uploadUserPhoto(numericId, formData.foto_perfil, { es_principal: true });
           if (!uploadMain.success) {
             console.warn('No se pudo subir foto principal:', uploadMain.message);
-          } else if (uploadMain.url) {
+          } else if (uploadMain.data && uploadMain.data.url) {
             // Guardar la ruta de la foto principal para sesión
-            sessionManager.updateUser({ ...sessionUser, foto_principal: uploadMain.url });
+            sessionManager.updateUser({ ...sessionUser, foto_principal: uploadMain.data.url });
           }
         }
 
-        // Subir fotos adicionales secuencialmente
-        for (const extra of formData.fotos_adicionales) {
-          const up = await ApiService.uploadUserPhoto(numericId, extra, { es_principal: false });
-          if (!up.success) {
-            console.warn('Error subiendo foto adicional:', up.message);
+        // Subir fotos adicionales si existen
+        if (formData.fotos_adicionales.length > 0) {
+          const uploadAdditional = await ApiService.uploadAdditionalPhotos(numericId, formData.fotos_adicionales);
+          if (!uploadAdditional.success) {
+            console.warn('Error subiendo fotos adicionales:', uploadAdditional.message);
+          } else {
+            console.log('Fotos adicionales subidas:', uploadAdditional.data);
           }
         }
 

@@ -13,3 +13,69 @@
 {"timestamp":"2025-08-12T17:08:57.934Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"5x9gVU4SLbw-XdgHAAAH","userId":7}
 {"timestamp":"2025-08-12T17:08:58.150Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"5x9gVU4SLbw-XdgHAAAH","conversationId":"6"}
 {"timestamp":"2025-08-12T17:09:04.135Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"5x9gVU4SLbw-XdgHAAAH","conversationId":"8"}
+{"timestamp":"2025-08-12T17:47:30.888Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"08csglQvFs8-TUMSAAAB","userId":7}
+{"timestamp":"2025-08-12T17:47:30.932Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"08csglQvFs8-TUMSAAAB","conversationId":"8"}
+{"timestamp":"2025-08-12T17:47:40.250Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"GRyaiHPAL9kW-xu5AAAD","conversationId":"8"}
+{"timestamp":"2025-08-12T17:47:40.255Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"GRyaiHPAL9kW-xu5AAAD","userId":9}
+{"timestamp":"2025-08-12T17:48:53.498Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"XElA71zv7w67wvqDAAAF","conversationId":"8"}
+{"timestamp":"2025-08-12T17:48:53.509Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"XElA71zv7w67wvqDAAAF","userId":9}
+{"timestamp":"2025-08-12T17:52:26.042Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"tFzLnxG_UaHxpf5TAAAH","userId":9}
+{"timestamp":"2025-08-12T17:52:26.270Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"tFzLnxG_UaHxpf5TAAAH","conversationId":"8"}
+{"timestamp":"2025-08-12T17:53:49.417Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"a6iRepBtuoh3TEemAAAJ","userId":9}
+{"timestamp":"2025-08-12T17:53:49.691Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"a6iRepBtuoh3TEemAAAJ","conversationId":"8"}
+{"timestamp":"2025-08-12T17:56:08.770Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"sSAGJeD3FeIejJNPAAAL","conversationId":"sophia"}
+{"timestamp":"2025-08-12T17:56:08.773Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"sSAGJeD3FeIejJNPAAAL","userId":12}
+{"timestamp":"2025-08-12T17:56:31.621Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"tkXUDfQSEUZEZcOoAAAB","conversationId":"sophia"}
+{"timestamp":"2025-08-12T17:56:31.624Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"tkXUDfQSEUZEZcOoAAAB","userId":12}
+{"timestamp":"2025-08-12T17:56:58.752Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"kfgHbMbfxRhPNJgtAAAD","userId":12}
+{"timestamp":"2025-08-12T17:56:58.757Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"kfgHbMbfxRhPNJgtAAAD","conversationId":"11"}
+{"timestamp":"2025-08-12T17:57:13.792Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"Vzw5AXyM4NJ0o0EcAAAF","conversationId":"11"}
+{"timestamp":"2025-08-12T17:57:13.798Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"Vzw5AXyM4NJ0o0EcAAAF","userId":12}
+{"timestamp":"2025-08-12T17:57:35.213Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"zjzZuGn69lMLMayLAAAH","userId":12}
+{"timestamp":"2025-08-12T17:57:35.229Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"zjzZuGn69lMLMayLAAAH","conversationId":"11"}
+{"timestamp":"2025-08-12T18:10:53.447Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"pSJ0sd7m_0gZDnpLAAAJ","userId":9}
+{"timestamp":"2025-08-12T18:10:53.812Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"pSJ0sd7m_0gZDnpLAAAJ","conversationId":"8"}
+{"timestamp":"2025-08-12T18:10:54.108Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"3m6ADtHatLgQVDW2AAAL","conversationId":"11"}
+{"timestamp":"2025-08-12T18:10:54.109Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"3m6ADtHatLgQVDW2AAAL","userId":12}
+{"timestamp":"2025-08-12T22:56:58.460Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"YCV7v1gYxJet8vLCAAAB","conversationId":"11"}
+{"timestamp":"2025-08-12T22:56:58.464Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"YCV7v1gYxJet8vLCAAAB","userId":12}
+{"timestamp":"2025-08-12T23:19:57.619Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"dUfCHOMBWCXDPfR4AAAD","userId":12}
+{"timestamp":"2025-08-12T23:19:57.783Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"dUfCHOMBWCXDPfR4AAAD","conversationId":"11"}
+{"timestamp":"2025-08-12T23:26:04.393Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"NAJPF2s3NVV5yGcyAAAF","conversationId":"sophia"}
+{"timestamp":"2025-08-12T23:26:04.395Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"NAJPF2s3NVV5yGcyAAAF","userId":13}
+{"timestamp":"2025-08-12T23:26:37.617Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"-SOqzFtigTXjsgZEAAAH","userId":13}
+{"timestamp":"2025-08-12T23:26:37.642Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"-SOqzFtigTXjsgZEAAAH","conversationId":"12"}
+{"timestamp":"2025-08-12T23:26:59.087Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"HXxek7MSzXRzt6kxAAAJ","userId":9}
+{"timestamp":"2025-08-12T23:26:59.196Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"HXxek7MSzXRzt6kxAAAJ","conversationId":"8"}
+{"timestamp":"2025-08-12T23:28:05.518Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"iriNUtt7btbiGlC_AAAL","conversationId":"8"}
+{"timestamp":"2025-08-12T23:28:05.520Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"iriNUtt7btbiGlC_AAAL","userId":7}
+{"timestamp":"2025-08-12T23:28:40.812Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"slLxUTThB4yXd-lAAAAN","conversationId":"13"}
+{"timestamp":"2025-08-12T23:28:40.818Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"slLxUTThB4yXd-lAAAAN","userId":13}
+{"timestamp":"2025-08-12T23:28:48.453Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"l9gfYM-HSv000dZ_AAAP","userId":7}
+{"timestamp":"2025-08-12T23:28:48.492Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"l9gfYM-HSv000dZ_AAAP","conversationId":"13"}
+{"timestamp":"2025-08-12T23:29:02.037Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"l9gfYM-HSv000dZ_AAAP","conversationId":"8"}
+{"timestamp":"2025-08-12T23:29:03.284Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"l9gfYM-HSv000dZ_AAAP","conversationId":"5"}
+{"timestamp":"2025-08-12T23:31:14.605Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"v1fKmFQlX7CM9wCIAAAR","userId":13}
+{"timestamp":"2025-08-12T23:31:14.687Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"v1fKmFQlX7CM9wCIAAAR","conversationId":"13"}
+{"timestamp":"2025-08-12T23:31:23.974Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"tYYduiXWVXQGtwCgAAAT","userId":13}
+{"timestamp":"2025-08-12T23:31:23.976Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"tYYduiXWVXQGtwCgAAAT","conversationId":"13"}
+{"timestamp":"2025-08-12T23:31:26.124Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"2532FYfPFfaxKH0qAAAV","conversationId":"13"}
+{"timestamp":"2025-08-12T23:31:26.126Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"2532FYfPFfaxKH0qAAAV","userId":13}
+{"timestamp":"2025-08-12T23:31:30.980Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"FpPmZA3ykurJGBk-AAAX","userId":13}
+{"timestamp":"2025-08-12T23:31:31.003Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"FpPmZA3ykurJGBk-AAAX","conversationId":"13"}
+{"timestamp":"2025-08-12T23:32:04.233Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"QKi38y-L6EroaySoAAAZ","userId":13}
+{"timestamp":"2025-08-12T23:32:04.309Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"QKi38y-L6EroaySoAAAZ","conversationId":"13"}
+{"timestamp":"2025-08-12T23:32:17.758Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"1H8Np8nAnNz0EmfHAAAb","userId":13}
+{"timestamp":"2025-08-12T23:32:17.772Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"1H8Np8nAnNz0EmfHAAAb","conversationId":"13"}
+{"timestamp":"2025-08-12T23:39:04.241Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"FI_um8ivG_zvsuXQAAAB","userId":13}
+{"timestamp":"2025-08-12T23:39:04.356Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"FI_um8ivG_zvsuXQAAAB","conversationId":"14"}
+{"timestamp":"2025-08-13T00:02:42.037Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"r4xjmaVCF7T8kICyAAAB","conversationId":"14"}
+{"timestamp":"2025-08-13T00:02:42.049Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"r4xjmaVCF7T8kICyAAAB","userId":13}
+{"timestamp":"2025-08-13T00:02:54.668Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"o5j7VQcP_CXGDg_NAAAD","conversationId":"14"}
+{"timestamp":"2025-08-13T00:02:54.677Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"o5j7VQcP_CXGDg_NAAAD","userId":13}
+{"timestamp":"2025-08-13T00:08:43.309Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"nseqq9ggPiKPchwBAAAB","conversationId":"14"}
+{"timestamp":"2025-08-13T00:08:43.311Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"nseqq9ggPiKPchwBAAAB","userId":13}
+{"timestamp":"2025-08-13T00:14:32.361Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"S3C3X-BRXcxfRPKwAAAD","userId":13}
+{"timestamp":"2025-08-13T00:14:32.428Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"S3C3X-BRXcxfRPKwAAAD","conversationId":"14"}
+{"timestamp":"2025-08-13T00:14:51.921Z","level":"DEBUG","message":"Usuario se unió a sala personal","socketId":"uKsxauUZ-QJ1gbiNAAAF","userId":13}
+{"timestamp":"2025-08-13T00:14:51.939Z","level":"DEBUG","message":"Usuario se unió a conversación","socketId":"uKsxauUZ-QJ1gbiNAAAF","conversationId":"14"}

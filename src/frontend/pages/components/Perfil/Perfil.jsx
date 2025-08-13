@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import SessionManager from '../../../../backend/services/SessionManager';
+import ProfileService from '../../../../backend/services/ProfileService';
 import './Perfil.css';
 
 const Perfil = () => {
@@ -24,6 +25,38 @@ const Perfil = () => {
     });
   };
   
+  // Cargar fotos del usuario
+  const loadUserPhotos = useCallback(async () => {
+    if (!currentUser?.id) return;
+    
+    try {
+      setLoading(true);
+      const result = await ProfileService.getUserPhotos(currentUser.id);
+      
+      if (result.success) {
+        const photos = result.data.map(photo => ({
+          ...photo,
+          url: ProfileService.buildImageUrl(photo.url)
+        }));
+        setUserPhotos(photos);
+        
+        // Actualizar la foto principal en el perfil
+        const mainPhoto = photos.find(p => p.es_principal);
+        if (mainPhoto) {
+          setProfile(prev => ({
+            ...prev,
+            foto: mainPhoto.url,
+            fotos: photos.map(p => p.url)
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error cargando fotos:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser?.id]);
+
   // Verificar autenticación al cargar el componente
   useEffect(() => {
     if (!sessionManager.isAuthenticated()) {
@@ -41,19 +74,18 @@ const Perfil = () => {
       if (currentUser && !currentUser.perfil_completado) {
         navigate('/complete-profile');
       }
+
+      // Cargar fotos del usuario
+      loadUserPhotos();
     }
-  }, [sessionManager, navigate, currentUser]);
+  }, [sessionManager, navigate, currentUser, loadUserPhotos]);
   
   const [profile, setProfile] = useState({
     nombre: currentUser?.nombre || 'Usuario',
     edad: currentUser?.edad || 25,
     ubicacion: currentUser?.ubicacion || 'Madrid, España',
     foto: currentUser?.foto || '/images/chica.jpg',
-    fotos: [
-      currentUser?.foto || '/images/chica.jpg',
-      '/images/Sofia.png',
-      '/images/laura.png'
-    ],
+    fotos: [],
     descripcion: currentUser?.descripcion || 'Me encanta viajar y conocer nuevas culturas. Buscando alguien con quien compartir aventuras y crear momentos inolvidables.',
     intereses: normalizeInterests(currentUser?.intereses),
     trabajo: currentUser?.trabajo || 'Diseñadora Gráfica',
@@ -80,7 +112,10 @@ const Perfil = () => {
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('perfil');
   const [newInterest, setNewInterest] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [userPhotos, setUserPhotos] = useState([]);
   const fileInputRef = useRef(null);
+  const additionalPhotosRef = useRef(null);
 
   const handleInputChange = (field, value) => {
     setProfile(prev => ({
@@ -116,35 +151,94 @@ const Perfil = () => {
     }));
   };
 
-  const handlePhotoUpload = (event) => {
+  const handlePhotoUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfile(prev => ({
-          ...prev,
-          foto: e.target.result,
-          fotos: [e.target.result, ...prev.fotos.slice(0, 4)]
-        }));
-      };
-      reader.readAsDataURL(file);
+    if (!file || !currentUser?.id) return;
+
+    try {
+      setLoading(true);
+      const result = await ProfileService.uploadProfilePhoto(currentUser.id, file);
+      
+      if (result.success) {
+        // Recargar fotos después de subir
+        await loadUserPhotos();
+        console.log('Foto de perfil subida exitosamente');
+      } else {
+        console.error('Error subiendo foto:', result.error);
+        alert('Error al subir la foto: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error subiendo foto:', error);
+      alert('Error al subir la foto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdditionalPhotosUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0 || !currentUser?.id) return;
+
+    try {
+      setLoading(true);
+      const result = await ProfileService.uploadAdditionalPhotos(currentUser.id, files);
+      
+      if (result.success) {
+        // Recargar fotos después de subir
+        await loadUserPhotos();
+        console.log('Fotos adicionales subidas exitosamente');
+      } else {
+        console.error('Error subiendo fotos:', result.error);
+        alert('Error al subir las fotos: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error subiendo fotos:', error);
+      alert('Error al subir las fotos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!currentUser?.id || !photoId) return;
+    
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta foto?')) return;
+
+    try {
+      setLoading(true);
+      const result = await ProfileService.deleteUserPhoto(currentUser.id, photoId);
+      
+      if (result.success) {
+        // Recargar fotos después de eliminar
+        await loadUserPhotos();
+        console.log('Foto eliminada exitosamente');
+      } else {
+        console.error('Error eliminando foto:', result.error);
+        alert('Error al eliminar la foto: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error eliminando foto:', error);
+      alert('Error al eliminar la foto');
+    } finally {
+      setLoading(false);
     }
   };
 
   const saveProfile = async () => {
+    if (!currentUser?.id) {
+      alert('Error: Usuario no identificado');
+      return;
+    }
+
     try {
-      // Aquí se guardaría el perfil en la base de datos
-      console.log('Guardando perfil:', profile);
+      setLoading(true);
       
-      // Actualizar los datos en SessionManager
-      const updatedUserData = {
-        ...currentUser,
+      // Preparar datos para enviar al backend
+      const profileData = {
         nombre: profile.nombre,
-        edad: profile.edad,
+        edad: parseInt(profile.edad),
         ubicacion: profile.ubicacion,
-        foto: profile.foto,
         descripcion: profile.descripcion,
-        intereses: profile.intereses,
         trabajo: profile.trabajo,
         educacion: profile.educacion,
         altura: profile.altura,
@@ -154,18 +248,74 @@ const Perfil = () => {
         mascotas: profile.mascotas,
         hijos: profile.hijos,
         religion: profile.religion,
-        politica: profile.politica
+        politica: profile.politica,
+        intereses: profile.intereses,
+        configuracion: profile.configuracion
       };
+
+      console.log('Guardando perfil:', profileData);
       
-      const result = sessionManager.updateUser(updatedUserData);
+      const result = await ProfileService.updateUserProfile(currentUser.id, profileData);
+      
       if (result.success) {
-        console.log('Perfil actualizado en SessionManager:', result.message);
-        setEditMode(false);
+        // Actualizar los datos en SessionManager
+        const updatedUserData = {
+          ...currentUser,
+          ...result.data
+        };
+        
+        const sessionResult = sessionManager.updateUser(updatedUserData);
+        if (sessionResult.success) {
+          console.log('Perfil actualizado exitosamente');
+          setEditMode(false);
+          alert('Perfil actualizado exitosamente');
+        } else {
+          console.error('Error actualizando SessionManager:', sessionResult.message);
+        }
       } else {
-        console.error('Error al actualizar perfil:', result.message);
+        console.error('Error guardando perfil:', result.error);
+        alert('Error al guardar el perfil: ' + result.error);
       }
     } catch (error) {
       console.error('Error guardando perfil:', error);
+      alert('Error al guardar el perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!currentUser?.id) return;
+    
+    const confirmMessage = `¿Estás seguro de que quieres eliminar tu cuenta permanentemente?
+
+Esta acción no se puede deshacer y se eliminará:
+- Tu perfil y todas las fotos
+- Todos tus matches y conversaciones
+- Todo tu historial de actividad
+
+Escribe "ELIMINAR" para confirmar:`;
+    
+    const confirmation = prompt(confirmMessage);
+    if (confirmation !== 'ELIMINAR') return;
+
+    try {
+      setLoading(true);
+      const result = await ProfileService.deleteUserAccount(currentUser.id);
+      
+      if (result.success) {
+        alert('Cuenta eliminada exitosamente');
+        sessionManager.logout();
+        navigate('/');
+      } else {
+        console.error('Error eliminando cuenta:', result.error);
+        alert('Error al eliminar la cuenta: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error eliminando cuenta:', error);
+      alert('Error al eliminar la cuenta');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -191,15 +341,27 @@ const Perfil = () => {
         <div className="profile-actions">
           {editMode ? (
             <>
-              <button className="save-btn" onClick={saveProfile}>
-                Guardar
+              <button 
+                className="save-btn" 
+                onClick={saveProfile}
+                disabled={loading}
+              >
+                {loading ? 'Guardando...' : 'Guardar'}
               </button>
-              <button className="cancel-btn" onClick={() => setEditMode(false)}>
+              <button 
+                className="cancel-btn" 
+                onClick={() => setEditMode(false)}
+                disabled={loading}
+              >
                 Cancelar
               </button>
             </>
           ) : (
-            <button className="edit-btn" onClick={() => setEditMode(true)}>
+            <button 
+              className="edit-btn" 
+              onClick={() => setEditMode(true)}
+              disabled={loading}
+            >
               Editar Perfil
             </button>
           )}
@@ -211,18 +373,30 @@ const Perfil = () => {
           <div className="profile-main">
             <div className="profile-photos">
               <div className="main-photo-container">
-                <img 
-                  src={profile.foto} 
-                  alt={profile.nombre}
-                  className="main-photo"
-                />
+                {(() => {
+                  const mainPhoto = userPhotos.find(p => p.es_principal);
+                  const photoSrc = mainPhoto?.url || profile.foto || '/images/default-avatar.svg';
+                  
+                  return (
+                    <img 
+                      src={photoSrc} 
+                      alt={profile.nombre}
+                      className="main-photo"
+                      onError={(e) => {
+                        console.log('Error loading main photo:', photoSrc);
+                        e.target.src = '/images/default-avatar.svg';
+                      }}
+                    />
+                  );
+                })()}
                 {profile.verificada && (
-                  <div className="verified-badge">✓ Verificado</div>
+                  <div className="verified-badge">Verificado</div>
                 )}
                 {editMode && (
                   <button 
                     className="upload-photo-btn"
                     onClick={() => fileInputRef.current?.click()}
+                    title="Cambiar foto principal"
                   >
                     📷
                   </button>
@@ -237,16 +411,43 @@ const Perfil = () => {
               </div>
 
               <div className="additional-photos">
-                {profile.fotos.slice(1).map((foto, index) => (
-                  <div key={index} className="additional-photo">
-                    <img src={foto} alt={`Foto ${index + 2}`} />
+                {userPhotos.filter(photo => !photo.es_principal).map((foto, index) => (
+                  <div key={foto.id} className="additional-photo">
+                    <img 
+                      src={foto.url} 
+                      alt={`Foto ${index + 2}`}
+                      onError={(e) => {
+                        console.log('Error loading additional photo:', foto.url);
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    {editMode && (
+                      <button 
+                        className="delete-photo-btn"
+                        onClick={() => handleDeletePhoto(foto.id)}
+                        title="Eliminar foto"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
-                {editMode && profile.fotos.length < 5 && (
-                  <div className="add-photo-placeholder">
+                {editMode && userPhotos.length < 5 && (
+                  <div 
+                    className="add-photo-placeholder"
+                    onClick={() => additionalPhotosRef.current?.click()}
+                  >
                     <span>+</span>
                   </div>
                 )}
+                <input
+                  type="file"
+                  ref={additionalPhotosRef}
+                  onChange={handleAdditionalPhotosUpload}
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                />
               </div>
             </div>
 
@@ -500,7 +701,25 @@ const Perfil = () => {
 
           <div className="settings-section">
             <h3>Cuenta</h3>
-            <button className="danger-btn">Eliminar Cuenta</button>
+            <div className="account-info">
+              <p><strong>Usuario:</strong> {profile.nombre}</p>
+              <p><strong>Email:</strong> {currentUser?.email || 'No disponible'}</p>
+              <p><strong>Fecha de registro:</strong> {currentUser?.fecha_registro ? new Date(currentUser.fecha_registro).toLocaleDateString() : 'No disponible'}</p>
+            </div>
+            
+            <div className="danger-zone">
+              <h4>Zona de Peligro</h4>
+              <p className="danger-text">
+                ⚠️ Esta acción eliminará permanentemente tu cuenta y no se puede deshacer.
+              </p>
+              <button 
+                className="danger-btn"
+                onClick={handleDeleteAccount}
+                disabled={loading}
+              >
+                {loading ? 'Eliminando...' : 'Eliminar Cuenta Permanentemente'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -279,15 +279,27 @@ const Chat = () => {
                 mensajes: []
               };
             }
+            
+            // Verificar si el mensaje ya existe para evitar duplicados
+            const messageExists = existingConv.mensajes?.some(existingMsg => 
+              String(existingMsg.id) === String(msg.id)
+            );
+            
+            if (messageExists) {
+              console.log('⚠️ Mensaje ya existe, evitando duplicado:', msg.id);
+              return prev;
+            }
+            
             const formatted = {
-              id: msg.id,
-              contenido: msg.contenido,
-              hora: new Date(msg.fecha_envio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-              remitente: msg.remitente_id === currentUser.id,
-              emisor: msg.remitente_id === currentUser.id ? 'Tú' : (msg.remitente_nombre || 'Usuario'),
-              leido: msg.leido || false,
-              tipo: 'texto'
+              id: String(msg.id),
+              contenido: String(msg.contenido),
+              hora: String(new Date(msg.fecha_envio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })),
+              remitente: Boolean(msg.remitente_id === currentUser.id),
+              emisor: String(msg.remitente_id === currentUser.id ? 'Tú' : (msg.remitente_nombre || 'Usuario')),
+              leido: Boolean(msg.leido || false),
+              tipo: String('texto')
             };
+            
             const updatedMessages = [...(existingConv.mensajes || []), formatted];
             // Mantener solo los últimos 50
             const trimmed = updatedMessages.slice(-50);
@@ -405,38 +417,11 @@ const Chat = () => {
       const result = await ChatService.sendMessage(currentConversationId, messageText);
       
       if (result.success) {
-        // Crear mensaje completamente sanitizado antes de agregarlo al estado
-        const newMessage = {
-          id: String(result.data?.id || Date.now()),
-          contenido: String(messageText || ''),
-          hora: String(new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })),
-          remitente: Boolean(true),
-          emisor: String('Tú'),
-          leido: Boolean(false),
-          tipo: String('texto')
-        };
-
-        console.log('📨 Mensaje nuevo completamente sanitizado:', newMessage);
-
-        // Validar que no hay objetos anidados
-        Object.keys(newMessage).forEach(key => {
-          const value = newMessage[key];
-          if (value !== null && typeof value === 'object') {
-            console.error(`🚨 OBJETO ANIDADO en nuevo mensaje en ${key}:`, value);
-            newMessage[key] = String(value);
-          }
-        });
-
-        setConversations(prev => ({
-          ...prev,
-          [currentConversationId]: {
-            ...prev[currentConversationId],
-            mensajes: [...(prev[currentConversationId]?.mensajes || []), newMessage].slice(-50),
-            lastMessageAt: new Date().toISOString(),
-            vista_previa: newMessage.contenido,
-            tiempo_indicador: 'Ahora'
-          }
-        }));
+        // NO agregar el mensaje aquí directamente al estado local
+        // El mensaje se agregará cuando llegue el evento 'message:new' del socket
+        // Esto evita la duplicación de mensajes
+        
+        console.log('✅ Mensaje enviado exitosamente, esperando evento de socket...');
 
         // Marcar mensajes como leídos
         await ChatService.markAsRead(currentConversationId);

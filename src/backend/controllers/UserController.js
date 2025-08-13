@@ -1,7 +1,9 @@
 // Controlador de usuarios
 const GoogleAuthService = require('../services/googleAuthService');
 const UserModel = require('../models/User');
+const UserPhotoModel = require('../models/UserPhoto');
 const InterestModel = require('../models/Interest');
+const uploadService = require('../services/uploadService');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
@@ -715,6 +717,261 @@ class UserController {
       });
     } catch (error) {
       console.error('Error completando perfil:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Subir foto de perfil
+  async uploadProfilePhoto(req, res) {
+    try {
+      const userId = req.params.userId || req.body.user_id;
+      
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se encontró archivo de imagen'
+        });
+      }
+
+      // Procesar el archivo subido
+      const fileInfo = uploadService.processUploadedFile(req.file);
+      
+      // Actualizar la foto principal del usuario
+      const result = await UserModel.updateUserFields(parseInt(userId), {
+        foto_principal: fileInfo.url
+      });
+
+      if (result.success) {
+        // Guardar en la tabla de fotos de usuario
+        const photoResult = await UserPhotoModel.create({
+          usuario_id: parseInt(userId),
+          url: fileInfo.url,
+          es_principal: true,
+          orden: 1
+        });
+
+        res.json({
+          success: true,
+          message: 'Foto de perfil subida exitosamente',
+          data: {
+            url: fileInfo.url,
+            filename: fileInfo.filename,
+            photo_id: photoResult.data?.id
+          }
+        });
+      } else {
+        // Si falla la actualización, eliminar el archivo
+        uploadService.deleteFile(fileInfo.filename);
+        res.status(500).json({
+          success: false,
+          message: 'Error guardando foto de perfil',
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error subiendo foto de perfil:', error);
+      
+      // Limpiar archivo si existe
+      if (req.file) {
+        uploadService.deleteFile(req.file.filename);
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Subir múltiples fotos adicionales
+  async uploadAdditionalPhotos(req, res) {
+    try {
+      const userId = req.params.userId || req.body.user_id;
+      
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se encontraron archivos de imagen'
+        });
+      }
+
+      const uploadedPhotos = [];
+      const errors = [];
+
+      // Procesar cada archivo
+      for (let i = 0; i < req.files.length; i++) {
+        try {
+          const file = req.files[i];
+          const fileInfo = uploadService.processUploadedFile(file);
+          
+          // Guardar en la tabla de fotos de usuario
+          const photoResult = await UserPhotoModel.create({
+            usuario_id: parseInt(userId),
+            url: fileInfo.url,
+            es_principal: false,
+            orden: i + 2 // Empezar en 2 porque la principal es 1
+          });
+
+          if (photoResult.success) {
+            uploadedPhotos.push({
+              url: fileInfo.url,
+              filename: fileInfo.filename,
+              photo_id: photoResult.data?.id,
+              order: i + 2
+            });
+          } else {
+            uploadService.deleteFile(fileInfo.filename);
+            errors.push(`Error guardando foto ${i + 1}: ${photoResult.error}`);
+          }
+        } catch (fileError) {
+          if (req.files[i]) {
+            uploadService.deleteFile(req.files[i].filename);
+          }
+          errors.push(`Error procesando foto ${i + 1}: ${fileError.message}`);
+        }
+      }
+
+      res.json({
+        success: uploadedPhotos.length > 0,
+        message: `${uploadedPhotos.length} fotos subidas exitosamente${errors.length > 0 ? ` (${errors.length} errores)` : ''}`,
+        data: {
+          uploaded_photos: uploadedPhotos,
+          errors: errors
+        }
+      });
+    } catch (error) {
+      console.error('Error subiendo fotos adicionales:', error);
+      
+      // Limpiar archivos si existen
+      if (req.files) {
+        req.files.forEach(file => {
+          uploadService.deleteFile(file.filename);
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Eliminar foto de usuario
+  async deleteUserPhoto(req, res) {
+    try {
+      const { userId, photoId } = req.params;
+      
+      if (!userId || !photoId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario y foto requeridos'
+        });
+      }
+
+      // Buscar la foto en la base de datos
+      const photo = await UserPhotoModel.findById(parseInt(photoId));
+      
+      if (!photo.success || !photo.found) {
+        return res.status(404).json({
+          success: false,
+          message: 'Foto no encontrada'
+        });
+      }
+
+      // Verificar que la foto pertenece al usuario
+      if (photo.data.usuario_id !== parseInt(userId)) {
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permiso para eliminar esta foto'
+        });
+      }
+
+      // Eliminar de la base de datos
+      const deleteResult = await UserPhotoModel.delete(parseInt(photoId));
+      
+      if (deleteResult.success) {
+        // Eliminar archivo físico
+        const filename = photo.data.url.split('/').pop();
+        uploadService.deleteFile(filename);
+
+        // Si era la foto principal, actualizar el usuario
+        if (photo.data.es_principal) {
+          await UserModel.updateUserFields(parseInt(userId), {
+            foto_principal: null
+          });
+        }
+
+        res.json({
+          success: true,
+          message: 'Foto eliminada exitosamente'
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error eliminando foto',
+          error: deleteResult.error
+        });
+      }
+    } catch (error) {
+      console.error('Error eliminando foto de usuario:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Obtener fotos de un usuario
+  async getUserPhotos(req, res) {
+    try {
+      const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'ID de usuario requerido'
+        });
+      }
+
+      const result = await UserPhotoModel.getPhotosByUserId(parseInt(userId));
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          data: result.data.map(photo => ({
+            id: photo.id,
+            url: photo.url,
+            es_principal: photo.es_principal,
+            orden: photo.orden,
+            fecha_subida: photo.fecha_subida
+          }))
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error obteniendo fotos del usuario',
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error obteniendo fotos del usuario:', error);
       res.status(500).json({
         success: false,
         message: 'Error interno del servidor'

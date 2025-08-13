@@ -26,6 +26,10 @@ class UserPhotoModel extends BaseModel {
   async getUserPhotos(userId) {
     return await this.customQuery('SELECT * FROM usuario_fotos WHERE usuario_id = $1 ORDER BY es_principal DESC, id ASC',[userId]);
   }
+
+  async getPhotosByUserId(userId) {
+    return await this.customQuery('SELECT * FROM usuario_fotos WHERE usuario_id = $1 ORDER BY es_principal DESC, id ASC',[userId]);
+  }
 }
 
 module.exports = new UserPhotoModel();

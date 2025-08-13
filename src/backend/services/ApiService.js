@@ -213,6 +213,19 @@ class ApiService {
   async getUnreadCount(userId) {
     return this.request(`/users/${userId}/unread-count`);
   }
+  // Métodos adicionales para perfil de usuario
+  async updateUserProfile(userId, profileData) {
+    return this.request(`/users/${userId}/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  async deleteUser(userId) {
+    return this.request(`/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Crear instancia y exportar

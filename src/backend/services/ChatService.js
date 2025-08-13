@@ -233,12 +233,12 @@ class ChatService {
       ? {
           id: conversation.usuario2_id,
           nombre: conversation.otro_usuario_nombre,
-          imagen: conversation.otro_usuario_foto || '/images/default-avatar.png'
+          imagen: this.buildImageUrl(conversation.otro_usuario_foto)
         }
       : {
           id: conversation.otro_usuario_id,
           nombre: conversation.otro_usuario_nombre,
-          imagen: conversation.otro_usuario_foto || '/images/default-avatar.png'
+          imagen: this.buildImageUrl(conversation.otro_usuario_foto)
         };
 
     console.log('👤 otherUser determined:', otherUser);
@@ -363,6 +363,49 @@ class ChatService {
         error: error.message || 'Error creando mensajes de prueba'
       };
     }
+  }
+
+  /**
+   * Construir URL completa para la imagen de usuario
+   */
+  buildImageUrl(imagePath) {
+    if (!imagePath) {
+      return '/images/default-avatar.png';
+    }
+    
+    console.log('🖼️ buildImageUrl input:', imagePath);
+    
+    // Si ya es una URL completa, devolverla tal como está
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      console.log('🖼️ buildImageUrl output (URL completa):', imagePath);
+      return imagePath;
+    }
+    
+    // Si es una ruta que empieza con /images/ (imágenes de demo), construir URL completa
+    if (imagePath.startsWith('/images/')) {
+      const result = `http://localhost:3001${imagePath}`;
+      console.log('🖼️ buildImageUrl output (images):', result);
+      return result;
+    }
+    
+    // Si es una ruta que empieza con /public/uploads/, convertirla a la ruta del servidor estático
+    if (imagePath.startsWith('/public/uploads/')) {
+      const result = `http://localhost:3001${imagePath.replace('/public', '')}`;
+      console.log('🖼️ buildImageUrl output (public/uploads):', result);
+      return result;
+    }
+    
+    // Si es una ruta que empieza con /uploads/, construir la URL completa
+    if (imagePath.startsWith('/uploads/')) {
+      const result = `http://localhost:3001${imagePath}`;
+      console.log('🖼️ buildImageUrl output (uploads):', result);
+      return result;
+    }
+    
+    // Para cualquier otra ruta, asumirla como relativa al directorio de imágenes por defecto
+    const result = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+    console.log('🖼️ buildImageUrl output (default):', result);
+    return result;
   }
 
   /**
