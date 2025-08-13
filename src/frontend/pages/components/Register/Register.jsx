@@ -34,9 +34,8 @@ const Register = () => {
     // Paso 3: Intereses
     intereses: [],
     
-    // Paso 4: Biografía y Foto
-    descripcion: '',
-    foto: null
+    // Paso 4: Biografía
+    descripcion: ''
   });
 
   // Cargar intereses al montar el componente
@@ -97,11 +96,6 @@ const Register = () => {
           intereses: formData.intereses.filter(interes => interes !== value)
         });
       }
-    } else if (type === 'file') {
-      setFormData({
-        ...formData,
-        [name]: e.target.files[0]
-      });
     } else {
       setFormData({
         ...formData,
@@ -194,28 +188,12 @@ const Register = () => {
           let userStored = { ...response.data };
           sessionManager.setUser(userStored);
 
-          // Subir foto principal si el usuario seleccionó una
-            if (formData.foto) {
-              try {
-                const uploadRes = await ApiService.uploadUserPhoto(response.data.id, formData.foto, { es_principal: true });
-                if (uploadRes.success) {
-                  // Actualizar usuario en sesión con la ruta de la foto
-                  userStored = { ...userStored, foto_principal: uploadRes.url };
-                  sessionManager.updateUser(userStored);
-                } else {
-                  console.warn('No se pudo subir la foto de perfil durante registro:', uploadRes.message);
-                }
-              } catch (upErr) {
-                console.warn('Error subiendo foto de perfil inicial:', upErr);
-              }
-            }
-
           alert('¡Registro completado con éxito!');
           // Redirigir a completar perfil (información adicional)
           navigate('/complete-profile');
         } else {
           // Fallback: si no se devolvió data de usuario
-            navigate('/login');
+          navigate('/login');
         }
       } else {
         setError(response.message || 'Error al crear usuario');
@@ -435,7 +413,7 @@ const Register = () => {
       case 4:
         return (
           <div className="form-section">
-            <h2>Biografía y Foto</h2>
+            <h2>Biografía</h2>
             <div className="input-group">
               <label htmlFor="descripcion">Cuéntanos sobre ti:</label>
               <textarea 
@@ -452,30 +430,6 @@ const Register = () => {
                 <small style={{ color: 'red', display: 'block', marginTop: '0.25rem' }}>
                   Faltan {10 - formData.descripcion.length} caracteres (mínimo 10)
                 </small>
-              )}
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="foto">Foto de perfil (opcional):</label>
-              <input 
-                type="file" 
-                id="foto" 
-                name="foto" 
-                accept="image/*" 
-                onChange={handleChange}
-                className="file-input" 
-              />
-              {formData.foto && (
-                <div style={{ marginTop: '0.75rem' }}>
-                  <strong>Vista previa:</strong>
-                  <div style={{marginTop:'0.5rem'}}>
-                    <img 
-                      src={URL.createObjectURL(formData.foto)} 
-                      alt="Vista previa" 
-                      style={{maxWidth:'180px', borderRadius:'8px', boxShadow:'0 2px 6px rgba(0,0,0,0.15)'}}
-                    />
-                  </div>
-                </div>
               )}
             </div>
 
@@ -530,7 +484,7 @@ const Register = () => {
                 </div>
                 <div className={`step-item ${currentStep === 4 ? 'active' : ''}`}>
                   <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>4</div>
-                  <div className="step-title">Biografía y Foto</div>
+                  <div className="step-title">Biografía</div>
                 </div>
               </div>
               <div className="progress-line"></div>
