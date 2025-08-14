@@ -1,25 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../Header';
+import OnlineUsersService from '../../../services/OnlineUsersService.js';
+import SessionManager from '../../../../backend/services/SessionManager.js';
 import './EnLinea.css';
 
 const EnLinea = () => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [filter, setFilter] = useState('todos');
   const [loading, setLoading] = useState(true);
+  const sessionManager = new SessionManager();
 
   useEffect(() => {
     loadOnlineUsers();
     
-    // Simular actualización en tiempo real
+    // Configurar actualización automática cada 30 segundos
     const interval = setInterval(() => {
       updateUserStatus();
-    }, 30000); // Actualizar cada 30 segundos
+    }, 30000);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Cleanup al desmontar el componente
+    return () => {
+      clearInterval(interval);
+      OnlineUsersService.setUserOffline(); // Marcar como offline al salir
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadOnlineUsers = () => {
-    // Simular datos de usuarios en línea
+  const loadOnlineUsers = async () => {
+    try {
+      setLoading(true);
+      
+      // Verificar autenticación
+      if (!sessionManager.isAuthenticated()) {
+        console.warn('Usuario no autenticado');
+        setOnlineUsers([]);
+        return;
+      }
+
+      // Marcar usuario actual como online
+      await OnlineUsersService.setUserOnline();
+      
+      // Obtener usuarios en línea desde el backend
+      const result = await OnlineUsersService.getOnlineUsers({
+        includeLocation: true,
+        includePhotos: true,
+        maxDistance: 50 // km
+      });
+
+      if (result.success && result.users) {
+        // Procesar usuarios para agregar estado y formato
+        const processedUsers = result.users.map(user => ({
+          ...user,
+          estado: OnlineUsersService.getUserStatus(user.ultima_actividad),
+          ultimaActividad: user.ultima_actividad ? new Date(user.ultima_actividad) : new Date(),
+          foto: OnlineUsersService.getImageUrl(user.foto),
+          verificada: user.verificado === true,
+          interesesComunes: user.intereses_comunes || user.intereses || [],
+          distancia: user.distancia || Math.random() * 10 // Fallback temporal
+        }));
+
+        setOnlineUsers(processedUsers);
+      } else {
+        console.error('Error cargando usuarios:', result.error);
+        // Fallback a datos mock en caso de error
+        loadMockUsers();
+      }
+    } catch (error) {
+      console.error('Error en loadOnlineUsers:', error);
+      // Fallback a datos mock en caso de error
+      loadMockUsers();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMockUsers = () => {
+    // Datos de respaldo en caso de error con el backend
     const mockUsers = [
       {
         id: 1,
@@ -38,7 +93,7 @@ const EnLinea = () => {
         nombre: 'Sofía Martínez',
         edad: 23,
         foto: '/images/Sofia.png',
-        ultimaActividad: new Date(Date.now() - 5 * 60 * 1000), // 5 minutos ago
+        ultimaActividad: new Date(Date.now() - 5 * 60 * 1000),
         estado: 'en_linea',
         distancia: 1.8,
         descripcion: 'Estudiante de arte, me fascina la creatividad.',
@@ -50,112 +105,100 @@ const EnLinea = () => {
         nombre: 'Laura Fernández',
         edad: 27,
         foto: '/images/laura.png',
-        ultimaActividad: new Date(Date.now() - 2 * 60 * 1000), // 2 minutos ago
+        ultimaActividad: new Date(Date.now() - 2 * 60 * 1000),
         estado: 'en_linea',
         distancia: 3.2,
         descripcion: 'Doctora veterinaria, amo a los animales.',
         interesesComunes: ['animales', 'naturaleza'],
         verificada: true
-      },
-      {
-        id: 4,
-        nombre: 'Carlos Mendoza',
-        edad: 28,
-        foto: '/images/tomas.png',
-        ultimaActividad: new Date(Date.now() - 8 * 60 * 1000), // 8 minutos ago
-        estado: 'en_linea',
-        distancia: 5.1,
-        descripcion: 'Amante del deporte y la vida saludable.',
-        interesesComunes: ['deporte', 'fitness'],
-        verificada: true
-      },
-      {
-        id: 5,
-        nombre: 'Miguel Torres',
-        edad: 32,
-        foto: '/images/andres.png',
-        ultimaActividad: new Date(Date.now() - 15 * 60 * 1000), // 15 minutos ago
-        estado: 'recientemente_activo',
-        distancia: 7.8,
-        descripcion: 'Ingeniero apasionado por la tecnología.',
-        interesesComunes: ['tecnología', 'gaming'],
-        verificada: true
-      },
-      {
-        id: 6,
-        nombre: 'Patricia López',
-        edad: 26,
-        foto: '/images/chica.jpg',
-        ultimaActividad: new Date(Date.now() - 45 * 60 * 1000), // 45 minutos ago
-        estado: 'recientemente_activo',
-        distancia: 4.3,
-        descripcion: 'Profesora y amante de la lectura.',
-        interesesComunes: ['lectura', 'educación'],
-        verificada: false
       }
     ];
-
     setOnlineUsers(mockUsers);
-    setLoading(false);
   };
 
-  const updateUserStatus = () => {
-    setOnlineUsers(prevUsers => 
-      prevUsers.map(user => {
-        // Simular cambios aleatorios en el estado
-        const timeSinceLastActivity = Date.now() - user.ultimaActividad.getTime();
-        
-        if (timeSinceLastActivity > 20 * 60 * 1000) { // Más de 20 minutos
-          return { ...user, estado: 'recientemente_activo' };
-        }
-        
-        return user;
-      })
-    );
-  };
+  const updateUserStatus = async () => {
+    try {
+      // Recargar usuarios en línea desde el backend
+      const result = await OnlineUsersService.getOnlineUsers({
+        includeLocation: true,
+        includePhotos: true,
+        maxDistance: 50
+      });
 
-  const getFilteredUsers = () => {
-    switch (filter) {
-      case 'en_linea':
-        return onlineUsers.filter(user => user.estado === 'en_linea');
-      case 'recientemente_activo':
-        return onlineUsers.filter(user => user.estado === 'recientemente_activo');
-      case 'verificados':
-        return onlineUsers.filter(user => user.verificada);
-      case 'cerca':
-        return onlineUsers.filter(user => user.distancia <= 5);
-      default:
-        return onlineUsers;
+      if (result.success && result.users) {
+        const processedUsers = result.users.map(user => ({
+          ...user,
+          estado: OnlineUsersService.getUserStatus(user.ultima_actividad),
+          ultimaActividad: user.ultima_actividad ? new Date(user.ultima_actividad) : new Date(),
+          foto: OnlineUsersService.getImageUrl(user.foto),
+          verificada: user.verificado === true,
+          interesesComunes: user.intereses_comunes || user.intereses || [],
+          distancia: user.distancia || Math.random() * 10
+        }));
+
+        setOnlineUsers(processedUsers);
+      }
+    } catch (error) {
+      console.error('Error actualizando usuarios:', error);
+      // Si falla la actualización, mantener usuarios actuales
+      // pero actualizar sus estados basado en tiempo transcurrido
+      setOnlineUsers(prevUsers => 
+        prevUsers.map(user => {
+          const timeSinceLastActivity = Date.now() - user.ultimaActividad.getTime();
+          
+          if (timeSinceLastActivity > 20 * 60 * 1000) { // Más de 20 minutos
+            return { ...user, estado: 'recientemente_activo' };
+          }
+          
+          return user;
+        })
+      );
     }
   };
 
+  const getFilteredUsers = () => {
+    return OnlineUsersService.filterUsers(onlineUsers, filter);
+  };
+
   const formatLastActivity = (date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Ahora mismo';
-    if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `Hace ${diffInHours}h`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `Hace ${diffInDays}d`;
+    return OnlineUsersService.formatLastActivity(date);
   };
 
-  const sendMessage = (user) => {
-    console.log('Enviando mensaje a:', user.nombre);
-    // Aquí se abriría el chat con el usuario
+  const sendMessage = async (user) => {
+    try {
+      const result = await OnlineUsersService.startConversation(user.id);
+      if (result.success) {
+        console.log('Conversación iniciada con:', user.nombre);
+        // Aquí podrías redirigir al chat o abrir modal de mensaje
+        // window.location.href = `/chat/${result.conversation.id}`;
+      }
+    } catch (error) {
+      console.error('Error enviando mensaje:', error);
+      alert('Error al iniciar conversación');
+    }
   };
 
-  const likeUser = (user) => {
-    console.log('Me gusta:', user.nombre);
-    // Aquí se enviaría el like
+  const likeUser = async (user) => {
+    try {
+      const result = await OnlineUsersService.likeUser(user.id);
+      if (result.success) {
+        console.log('Like enviado a:', user.nombre);
+        if (result.match) {
+          alert(`¡Es un match con ${user.nombre}! 💖`);
+        } else {
+          alert(`Like enviado a ${user.nombre} ❤️`);
+        }
+      }
+    } catch (error) {
+      console.error('Error enviando like:', error);
+      alert('Error al enviar like');
+    }
   };
 
   const viewProfile = (user) => {
     console.log('Ver perfil de:', user.nombre);
-    // Aquí se abriría el perfil completo
+    // Aquí podrías abrir modal del perfil o redirigir
+    // window.location.href = `/perfil/${user.id}`;
   };
 
   const filteredUsers = getFilteredUsers();

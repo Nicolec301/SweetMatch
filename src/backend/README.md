@@ -1,6 +1,6 @@
-# � Backend - Servidor Node.js de SweetMatch
+# SweetMatch Backend 💖
 
-El backend de SweetMatch es un servidor Node.js robusto que proporciona una API REST completa para la aplicación de dating, con autenticación, chat en tiempo real, sistema de matches y más.
+Backend completo para SweetMatch, una aplicación de citas moderna desarrollada con Node.js, Express y PostgreSQL. Incluye autenticación JWT, OAuth con Google, sistema de matches, chat en tiempo real y gestión completa de archivos con Multer.
 
 ## 📁 Estructura del Backend
 

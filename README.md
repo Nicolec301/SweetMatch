@@ -1,112 +1,219 @@
-<<<<<<< HEAD
-# SweetMatch - Aplicación de Citas
+# SweetMatch 💖 - App de Citas Completa
 
-Una aplicación moderna de citas desarrollada con React y PostgreSQL.
+SweetMatch es una aplicación moderna de citas desarrollada con React, Node.js y PostgreSQL. Incluye autenticación con Google OAuth, sistema completo de perfiles con upload de imágenes, matches, chat en tiempo real y diseño responsive.
 
-## 🚀 Configuración del Proyecto
+## ✨ Características Principales
+
+- � **Autenticación completa**: Google OAuth + JWT
+- 👤 **Perfiles ricos**: Bio, fotos múltiples, intereses
+- 💘 **Sistema de matches**: Like/Dislike inteligente  
+- 💬 **Chat tiempo real**: Socket.IO + mensajería
+- 📱 **Responsive**: Mobile-first design
+- 🖼️ **Upload imágenes**: Multer + almacenamiento optimizado
+- 🎨 **UI moderna**: Gradientes, animaciones, badges
+- 🔒 **Seguridad**: JWT, validaciones, sanitización
+
+## 🛠️ Stack Tecnológico
+
+### Frontend
+- **React 18.2** - Framework UI con Hooks
+- **React Router** - Navegación SPA
+- **Socket.IO Client** - Real-time communication
+- **CSS Modules** - Estilos modulares
+- **Google OAuth** - Autenticación social
+
+### Backend  
+- **Node.js + Express** - Servidor web
+- **PostgreSQL** - Base de datos relacional
+- **Socket.IO** - WebSocket real-time
+- **JWT** - Autenticación stateless
+- **Multer** - Upload de archivos
+- **bcryptjs** - Hash passwords
+
+## 🚀 Instalación Rápida
 
 ### Prerrequisitos
+- Node.js 16+ 
+- PostgreSQL 12+
+- npm/yarn
 
-- Node.js (versión 16 o superior)
-- PostgreSQL (versión 12 o superior)
-- npm o yarn
-
-### Instalación
-
-1. **Clona el repositorio**
+### Setup Completo
+1. **Clonar repositorio**
    ```bash
    git clone <tu-repositorio>
    cd SweetMatch
    ```
 
-2. **Instala las dependencias**
+2. **Instalar dependencias**
    ```bash
    npm install
    ```
 
-3. **Configura las variables de entorno**
-   - Copia el archivo `.env.example` a `.env`
-   - Modifica las variables según tu configuración:
+3. **Configurar variables de entorno**
+   Crear archivo `.env`:
    ```env
-   # Configuración de la base de datos PostgreSQL
+   # Base de datos
    DB_HOST=localhost
    DB_PORT=5432
    DB_NAME=sweetmatch
    DB_USER=postgres
-   DB_PASSWORD=tu_password_aqui
+   DB_PASSWORD=tu_password
    
-   # Configuración del servidor
-   PORT=3002
+   # JWT
+   JWT_SECRET=tu_jwt_secret_super_seguro
+   
+   # Google OAuth  
+   GOOGLE_CLIENT_ID=tu_google_client_id
+   GOOGLE_CLIENT_SECRET=tu_google_client_secret
+   
+   # Servidor
+   PORT=3001
    NODE_ENV=development
    
-   # URL del API para el frontend
-   REACT_APP_API_URL=http://localhost:3002/api
+   # Frontend
+   REACT_APP_API_URL=http://localhost:3001/api
    ```
 
-4. **Configura PostgreSQL**
-   - Asegúrate de tener PostgreSQL instalado y ejecutándose
-   - Crea un usuario y contraseña si no los tienes
-   - El script creará automáticamente la base de datos `sweetmatch`
-
-5. **Inicializa la base de datos**
+4. **Configurar base de datos**
    ```bash
-   npm run init-db
+   # Crear base de datos
+   createdb sweetmatch
+   
+   # Ejecutar migraciones
+   psql -d sweetmatch -f src/backend/postgres/sweetmatch_database_complete.sql
    ```
 
-### Uso
+5. **Iniciar aplicación**
+   ```bash
+   # Desarrollo completo (Frontend + Backend)
+   npm run dev
+   
+   # Solo frontend
+   npm start
+   
+   # Solo backend
+   npm run server
+   ```
 
-#### Desarrollo (Frontend y Backend juntos)
-```bash
-npm run dev
+## 📱 Funcionalidades Implementadas
+
+### 🔐 Sistema de Autenticación
+- **Google OAuth**: Login automático con registro
+- **JWT Tokens**: Autenticación segura sin sesiones
+- **Middleware**: Protección de rutas sensibles
+
+### 👤 Gestión de Perfiles
+- **Perfil Completo**: Bio, edad, ubicación, intereses
+- **Upload Múltiple**: Sistema Multer para fotos
+- **Edición en Línea**: Actualización dinámica de datos
+- **Validaciones**: Frontend y backend robustas
+
+### 💘 Sistema de Matches
+- **Algoritmo Inteligente**: Basado en preferencias
+- **Like/Dislike**: Interacción intuitiva
+- **Matches Mutuos**: Detección automática
+- **Historial**: Tracking de interacciones
+
+### 💬 Chat en Tiempo Real
+- **Socket.IO**: Mensajería instantánea
+- **Lista Conversaciones**: UI organizada
+- **Estados**: Online/offline, writing
+- **Persistencia**: Mensajes almacenados
+
+### 🎨 UI/UX Moderna
+- **Responsive Design**: Mobile-first approach
+- **CSS Variables**: Sistema de colores consistente
+- **Animaciones**: Micro-interacciones suaves
+- **Gradientes**: Estética visual atractiva
+
+## 📁 Estructura del Proyecto
+
+```
+SweetMatch/
+├── 📄 package.json              # Dependencias del proyecto
+├── 📄 README.md                 # Documentación principal
+├── 📂 public/                   # Assets estáticos
+│   └── images/                  # Fotos demo usuarios
+├── 📂 src/
+│   ├── 📄 App.js               # Componente raíz React
+│   ├── 📂 backend/             # Servidor Node.js
+│   │   ├── controllers/        # Lógica de negocio
+│   │   ├── models/             # Modelos de datos
+│   │   ├── routes/             # Rutas API
+│   │   ├── services/           # Servicios centralizados
+│   │   ├── middleware/         # Middleware personalizado
+│   │   └── postgres/           # Scripts de BD
+│   └── 📂 frontend/            # Aplicación React
+│       ├── pages/              # Componentes principales
+│       ├── services/           # Servicios frontend
+│       └── styles/             # CSS modular
+└── 📂 logs/                    # Logs de aplicación
 ```
 
-#### Solo Frontend
-```bash
-npm start
-```
-
-#### Solo Backend
-```bash
-npm run server
-```
-
-### URLs de la aplicación
+## 🌐 URLs de Acceso
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:3002/api
-- **Health Check**: http://localhost:3002/api/health
+- **Backend API**: http://localhost:3001/api  
+- **Health Check**: http://localhost:3001/api/health
+- **Socket.IO**: http://localhost:3001
 
-## 🗄️ Base de Datos
+## � Base de Datos PostgreSQL
 
-La aplicación utiliza PostgreSQL con las siguientes tablas principales:
+### Esquema Principal
+```sql
+users              # Perfiles de usuarios
+user_photos         # Sistema de fotos múltiples  
+interests           # Lista de intereses
+user_interests      # Relación usuario-intereses
+matches            # Sistema de likes/matches
+conversations      # Conversaciones de chat
+messages           # Mensajes en tiempo real
+```
 
-- `users` - Información de usuarios
-- `user_photos` - Fotos de perfil
-- `interest` - Lista de intereses disponibles
-- `user_interest` - Relación usuario-intereses
-- `matches` - Matches entre usuarios
-- `conversations` - Conversaciones
-- `messages` - Mensajes
+### Características
+- **Relaciones**: Foreign keys bien definidas
+- **Índices**: Optimizados para queries frecuentes
+- **Constraints**: Validaciones a nivel BD
+- **Triggers**: Actualizaciones automáticas
 
-### Datos de prueba
+## 🚦 Estado del Proyecto
 
-El script de inicialización incluye usuarios y datos de ejemplo para testing.
+### ✅ Funcionalidades Completadas
+- ✅ **Autenticación JWT + Google OAuth**
+- ✅ **Sistema completo de perfiles**
+- ✅ **Upload múltiple de imágenes con Multer**
+- ✅ **Chat en tiempo real con Socket.IO**
+- ✅ **Sistema de matches like/dislike**
+- ✅ **Diseño responsive moderno**
+- ✅ **Gestión de sesiones avanzada**
+- ✅ **Validaciones frontend/backend**
+- ✅ **CSS con gradientes y animaciones**
+- ✅ **Eliminación de cuenta segura**
 
-## 🔧 Funcionalidades
+### 🔄 Mejoras Continuas
+- 🔲 **Algoritmo ML para recommendations**
+- 🔲 **Push notifications**
+- 🔲 **Tests unitarios e integración**
+- 🔲 **Deploy en producción**
+- 🔲 **Analytics y métricas**
 
-### Implementadas
-- ✅ Registro de usuarios con formulario multipaso
-- ✅ Sistema de login tradicional
-- ✅ Conexión con base de datos PostgreSQL
-- ✅ Gestión de intereses de usuario
-- ✅ Estructura de base de datos completa
+## �️ Scripts NPM Disponibles
 
-### Pendientes
-- 🔲 Login con Google OAuth
-- 🔲 Sistema de matches
-- 🔲 Chat en tiempo real
-- 🔲 Subida de fotos
-- 🔲 Algoritmo de recomendaciones
+```bash
+# Desarrollo completo
+npm run dev           # Frontend + Backend simultáneo
+
+# Componentes individuales  
+npm start            # Solo React frontend
+npm run server       # Solo Node.js backend
+
+# Base de datos
+npm run init-db      # Inicializar BD con datos demo
+
+# Utilidades
+npm test             # Tests (cuando estén implementados)
+npm run build        # Build de producción
+```
 
 ## 📁 Estructura del Proyecto
 
@@ -170,54 +277,81 @@ npm install
 
 Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más información.
 =======
-Primeros Pasos con este Proyecto React
+## 🔧 Desarrollo y Debugging
 
-Este proyecto fue inicializado con Create React App, una herramienta que facilita la creación de aplicaciones web modernas con React.
+### Logs del Sistema
+Los logs se almacenan en:
+- `logs/app.log` - Logs generales de aplicación
+- `logs/debug.log` - Información de debugging
+- Consola del navegador - Errores frontend
 
-A continuación, encontrarás una guía para instalar las dependencias y ejecutar el proyecto en tu máquina local.
+### Testing Local
+```bash
+# Verificar conexión BD
+psql -U postgres -d sweetmatch -c "SELECT COUNT(*) FROM users;"
 
-⚙️ Instalación
+# Test backend API
+curl http://localhost:3001/api/health
 
-Antes de empezar, asegúrate de tener Node.js y npm instalados.
+# Verificar uploads
+ls -la public/uploads/users/
+```
 
-Para poder ejecutar la aplicación, el primer paso es instalar todas las dependencias del proyecto. Abre una terminal en el directorio raíz del proyecto y ejecuta el siguiente comando:
+### Debugging Common Issues
+1. **Error de conexión BD**: Verificar PostgreSQL ejecutándose
+2. **CORS errors**: Revisar configuración en `config/cors.js`
+3. **Upload errors**: Verificar permisos carpeta `public/uploads/`
+4. **Socket.IO issues**: Verificar puerto 3001 disponible
 
-npm install
+## 🚀 Despliegue en Producción
 
-
-Este comando leerá el archivo package.json y descargará todas las librerías necesarias en la carpeta node_modules.
-
-🚀 Scripts Disponibles
-
-Una vez completada la instalación, puedes usar los siguientes scripts desde tu terminal:
-
-npm start
-
-Ejecuta la aplicación en modo de desarrollo. Abre http://localhost:3000 para verla en tu navegador.
-
-La página se recargará automáticamente cada vez que guardes cambios en un archivo. También podrás ver cualquier error de código directamente en la consola.
-
-npm test
-
-Lanza el corredor de pruebas en modo interactivo. Es la herramienta ideal para verificar que tus componentes funcionan como se espera.
-
+### Preparación
+```bash
+# Build de producción
 npm run build
 
-Compila y empaqueta la aplicación para producción en la carpeta build. Este proceso optimiza el código para que tu aplicación sea lo más rápida y ligera posible.
+# Variables de entorno production
+NODE_ENV=production
+PORT=3001
+DB_URL=postgresql://user:pass@host:port/database
+```
 
-La compilación final está minificada y los nombres de los archivos incluyen un hash para una gestión eficiente del caché. ¡Tu aplicación está lista para ser desplegada!
+### Platforms Soportadas
+- **Heroku**: Configuración incluida
+- **AWS**: Compatible con EC2, ECS
+- **DigitalOcean**: Droplets con Node.js
+- **Vercel/Netlify**: Frontend estático
 
-npm run eject
+## 🤝 Contribución
 
-⚠️ Nota: Esta es una operación irreversible. Una vez que ejecutas eject, no hay vuelta atrás.
+### Guía para Contributors
+1. Fork del repositorio
+2. Crear branch feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -m 'Añadir nueva funcionalidad'`)
+4. Push al branch (`git push origin feature/nueva-funcionalidad`)
+5. Abrir Pull Request
 
-Si necesitas un control total sobre la configuración del proyecto (como Webpack, Babel, ESLint, etc.), puedes usar eject. Este comando elimina la capa de abstracción de create-react-app y copia todas las configuraciones y dependencias directamente en tu proyecto.
+### Estándares de Código
+- **ESLint**: Configuración estándar
+- **Prettier**: Formateo automático
+- **Conventional Commits**: Formato de mensajes
+- **Component naming**: PascalCase para React components
 
-No es necesario usar eject en la mayoría de los casos, pero es una opción disponible para personalizaciones avanzadas.
+## 📞 Soporte y Contacto
 
-📚 Aprende Más
+- **Issues**: Reportar bugs en GitHub Issues
+- **Discussions**: Preguntas en GitHub Discussions
+- **Documentation**: Wiki del proyecto para detalles técnicos
 
-Para profundizar en el funcionamiento de estas herramientas, puedes consultar la documentación oficial:
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detalles.
+
+---
+
+**SweetMatch** - Conectando corazones con tecnología moderna 💖
+
+*Desarrollado con amor usando React, Node.js y PostgreSQL*
 
 Documentación de Create React App: Ver documentación
 

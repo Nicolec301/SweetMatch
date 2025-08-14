@@ -53,6 +53,9 @@ const upload = multer({
 
 // Rutas de usuarios
 router.get('/users', UserController.getUsers);
+router.get('/users/online', tempAuthMiddleware, UserController.getOnlineUsers); // Mover antes de :id
+router.post('/users/status/online', tempAuthMiddleware, UserController.setUserOnline);
+router.post('/users/status/offline', tempAuthMiddleware, UserController.setUserOffline);
 router.get('/users/:id', UserController.getUserById);
 router.post('/users', UserController.createUser); // Mantener para compatibilidad
 // Rutas específicas deben ir antes que las genéricas con :id

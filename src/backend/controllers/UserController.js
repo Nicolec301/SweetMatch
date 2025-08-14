@@ -978,6 +978,171 @@ class UserController {
       });
     }
   }
+
+  // Obtener usuarios en línea
+  async getOnlineUsers(req, res) {
+    try {
+      const currentUserId = req.user?.id || req.userId;
+      if (!currentUserId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuario no autenticado'
+        });
+      }
+
+      const {
+        includeLocation = 'true',
+        includePhotos = 'true',
+        maxDistance = 50,
+        page = 1,
+        limit = 20
+      } = req.query;
+
+      // Query para obtener usuarios activos (últimos 30 minutos)
+      const timeLimit = new Date(Date.now() - 30 * 60 * 1000); // 30 minutos
+      
+      const query = `
+        SELECT DISTINCT u.id, u.nombre, u.edad, u.genero, u.ubicacion, u.biografia,
+               u.intereses, u.verificado, u.ultima_actividad,
+               u.busca_genero, u.busca_edad_min, u.busca_edad_max,
+               up.filename as foto, up.url as foto_url
+        FROM users u
+        LEFT JOIN usuario_fotos up ON u.id = up.usuario_id AND up.es_principal = true
+        WHERE u.id != $1 
+        AND u.activo = true
+        AND u.ultima_actividad >= $2
+        AND (u.busca_genero IS NULL OR u.busca_genero = 
+             (SELECT genero FROM users WHERE id = $1))
+        ORDER BY u.ultima_actividad DESC
+        LIMIT $3 OFFSET $4
+      `;
+
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+      const result = await UserModel.customQuery(query, [
+        currentUserId,
+        timeLimit.toISOString(),
+        parseInt(limit),
+        offset
+      ]);
+
+      if (result.success) {
+        const processedUsers = result.data.map(user => ({
+          ...user,
+          foto: user.foto || user.foto_url,
+          ultima_actividad: user.ultima_actividad,
+          distancia: Math.random() * parseInt(maxDistance), // Temporal: calcular distancia real
+          intereses_comunes: user.intereses || []
+        }));
+
+        // Si includePhotos, obtener todas las fotos
+        if (includePhotos === 'true') {
+          for (let user of processedUsers) {
+            const photosResult = await UserPhotoModel.getUserPhotos(user.id);
+            if (photosResult.success) {
+              user.photos = photosResult.data;
+            }
+          }
+        }
+
+        res.json({
+          success: true,
+          users: processedUsers,
+          total: processedUsers.length,
+          page: parseInt(page),
+          limit: parseInt(limit)
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error obteniendo usuarios en línea',
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error obteniendo usuarios en línea:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Marcar usuario como en línea
+  async setUserOnline(req, res) {
+    try {
+      const userId = req.user?.id || req.userId;
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuario no autenticado'
+        });
+      }
+
+      const now = new Date().toISOString();
+      const updateResult = await UserModel.updateUser(userId, {
+        ultima_actividad: now
+      });
+
+      if (updateResult.success) {
+        res.json({
+          success: true,
+          message: 'Estado actualizado a en línea',
+          timestamp: now
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error actualizando estado',
+          error: updateResult.error
+        });
+      }
+    } catch (error) {
+      console.error('Error marcando usuario como online:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
+
+  // Marcar usuario como offline
+  async setUserOffline(req, res) {
+    try {
+      const userId = req.user?.id || req.userId;
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuario no autenticado'
+        });
+      }
+
+      // Simplemente actualizar la última actividad a hace unos minutos
+      const offlineTime = new Date(Date.now() - 35 * 60 * 1000).toISOString(); // 35 min atrás
+      const updateResult = await UserModel.updateUser(userId, {
+        ultima_actividad: offlineTime
+      });
+
+      if (updateResult.success) {
+        res.json({
+          success: true,
+          message: 'Estado actualizado a offline',
+          timestamp: offlineTime
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: 'Error actualizando estado',
+          error: updateResult.error
+        });
+      }
+    } catch (error) {
+      console.error('Error marcando usuario como offline:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  }
 }
 
 module.exports = new UserController();

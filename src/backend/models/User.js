@@ -4,7 +4,7 @@ class UserModel extends BaseModel {
   constructor() {
     super('usuarios', [
       'id', 'nombre', 'email', 'edad', 'descripcion', 
-      'password', 'ubicacion', 'created_at'
+      'password', 'ubicacion', 'ultima_actividad', 'created_at'
     ]);
   }
 
