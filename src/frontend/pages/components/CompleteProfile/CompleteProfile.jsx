@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
-import SessionManager from '../../../../backend/services/SessionManager';
-import ApiService from '../../../../backend/services/ApiService';
+import SessionManager from '../../../services/SessionManager';
+import ApiService from '../../../services/ApiService';
 import './CompleteProfile.css';
 
 const CompleteProfile = () => {
@@ -19,9 +19,9 @@ const CompleteProfile = () => {
       return;
     }
 
-    // Si el usuario ya completó su perfil, redirigir a búsqueda
+    // Si el usuario ya completó su perfil, redirigir al inicio
     if (currentUser?.perfil_completado) {
-      navigate('/busqueda');
+      navigate('/');
       return;
     }
   }, [sessionManager, navigate, currentUser]);
@@ -114,8 +114,8 @@ const CompleteProfile = () => {
   };
 
   const skipProfile = () => {
-    // Permitir al usuario saltarse este paso y ir directamente a la aplicación
-    navigate('/busqueda');
+    // Permitir al usuario saltarse este paso y ir directamente al inicio
+    navigate('/');
   };
 
   const handleSubmit = async (e) => {
@@ -193,14 +193,14 @@ const CompleteProfile = () => {
           : { ...sessionUser, ...profileData, perfil_completado: true };
 
         sessionManager.updateUser(updatedUser);
-        console.log('✅ Perfil completado. Redirigiendo al Home…');
+        console.log('✅ Perfil completado. Redirigiendo al Inicio…');
 
-        // Redirigir al Home y reemplazar historial para evitar volver al formulario
-        navigate('/busqueda', { replace: true });
+        // Redirigir al Inicio y reemplazar historial para evitar volver al formulario
+        navigate('/', { replace: true });
         // Fallback: si navigate no aplica por alguna razón del entorno, forzar redirección
         setTimeout(() => {
-          if (window?.location?.pathname !== '/busqueda') {
-            window.location.replace('/busqueda');
+          if (window?.location?.pathname !== '/') {
+            window.location.replace('/');
           }
         }, 100);
         return;

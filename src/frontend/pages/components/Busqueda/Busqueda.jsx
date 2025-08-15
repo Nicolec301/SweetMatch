@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SessionManager from '../../../../backend/services/SessionManager';
-import SearchService from '../../../../backend/services/SearchService';
+import SessionManager from '../../../services/SessionManager';
+import SearchService from '../../../services/SearchService';
 import Header from '../Header';
 import './Busqueda.css';
 
@@ -225,7 +225,7 @@ const Busqueda = () => {
       }
     ];
 
-    setProfiles(mockProfiles);
+    return mockProfiles;
   };
 
   // Recargar perfiles cuando cambien los filtros

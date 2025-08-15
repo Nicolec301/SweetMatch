@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
-import SessionManager from '../../../../backend/services/SessionManager';
-import ProfileService from '../../../../backend/services/ProfileService';
+import SessionManager from '../../../services/SessionManager';
+import ProfileService from '../../../services/ProfileService';
 import './Perfil.css';
 
 const Perfil = () => {
@@ -454,12 +454,24 @@ Escribe "ELIMINAR" para confirmar:`;
             <div className="profile-info">
               <div className="basic-info">
                 {editMode ? (
-                  <input
-                    type="text"
-                    value={profile.nombre}
-                    onChange={(e) => handleInputChange('nombre', e.target.value)}
-                    className="name-input"
-                  />
+                  <div className="name-age-edit">
+                    <input
+                      type="text"
+                      value={profile.nombre}
+                      onChange={(e) => handleInputChange('nombre', e.target.value)}
+                      className="name-input"
+                      placeholder="Nombre"
+                    />
+                    <input
+                      type="number"
+                      value={profile.edad}
+                      onChange={(e) => handleInputChange('edad', parseInt(e.target.value) || 18)}
+                      className="age-input"
+                      placeholder="Edad"
+                      min="18"
+                      max="99"
+                    />
+                  </div>
                 ) : (
                   <h1>{profile.nombre}, {profile.edad}</h1>
                 )}

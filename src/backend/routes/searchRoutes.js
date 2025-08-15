@@ -1,15 +1,15 @@
-// Rutas de búsqueda
+// Rutas de búsqueda de usuarios y perfiles
 const express = require('express');
 const router = express.Router();
 const SearchController = require('../controllers/SearchController');
+const JWTAuthMiddleware = require('../middleware/jwtAuth');
 
-// Rutas de búsqueda
-router.post('/users', SearchController.searchUsers);
+// === RUTAS DE BÚSQUEDA (públicas) ===
+router.get('/users', SearchController.searchUsers);
 router.get('/interests', SearchController.getAvailableInterests);
-router.get('/profile/:id', SearchController.getUserProfile);
-router.post('/message', SearchController.sendDirectMessage);
+router.get('/profile/:userId', SearchController.getUserProfile);
 
-// Ruta para testing
-router.post('/test-messages', SearchController.createTestMessages);
+// === RUTAS DE MENSAJERÍA DESDE BÚSQUEDA (requieren autenticación) ===
+router.post('/send-message', JWTAuthMiddleware.authenticate, SearchController.sendDirectMessage);
 
 module.exports = router;

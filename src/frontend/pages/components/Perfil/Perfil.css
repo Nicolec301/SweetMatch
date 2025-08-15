@@ -473,6 +473,37 @@
   transition: all 0.3s ease;
 }
 
+.name-age-edit {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.name-age-edit .name-input {
+  flex: 2;
+  margin-bottom: 0;
+}
+
+.age-input {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2d3748;
+  border: 3px solid #e9ecef;
+  border-radius: 15px;
+  padding: 15px 20px;
+  background: white;
+  transition: all 0.3s ease;
+  flex: 0 0 120px;
+  text-align: center;
+}
+
+.age-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(255, 51, 104, 0.1);
+}
+
 .name-input:focus {
   outline: none;
   border-color: var(--primary);
@@ -931,6 +962,20 @@
   
   .name-input {
     font-size: 24px;
+  }
+  
+  .age-input {
+    font-size: 24px;
+    flex: 0 0 100px;
+  }
+  
+  .name-age-edit {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .name-age-edit .name-input {
+    flex: none;
   }
   
   .details-grid {

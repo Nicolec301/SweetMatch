@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import SessionManager from '../../../../backend/services/SessionManager';
-import { logout } from '../../../../backend/services/sessionUtils';
+import SessionManager from '../../../services/SessionManager';
+import { logout } from '../../../services/sessionUtils';
 import './UserMenu.css';
 
 const UserMenu = () => {

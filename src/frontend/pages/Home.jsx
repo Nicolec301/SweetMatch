@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import SessionManager from '../../backend/services/SessionManager';
+import SessionManager from '../services/SessionManager';
 import '../styles/modules/home/welcome.css';
 import I_Foto0 from '../images/I_Foto0.jpg';
 import I_Foto1 from '../images/I_Foto1.jpg';

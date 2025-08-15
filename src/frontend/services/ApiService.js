@@ -4,14 +4,37 @@ import { API_BASE_URL } from '../../config';
 class ApiService {
   constructor() {
     this.baseUrl = API_BASE_URL;
+    this.token = null;
+  }
+
+  // Configurar token JWT
+  setToken(token) {
+    this.token = token;
+    // Guardar token en localStorage
+    if (token) {
+      localStorage.setItem('authToken', token);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+  }
+
+  // Obtener token del localStorage
+  getToken() {
+    if (!this.token) {
+      this.token = localStorage.getItem('authToken');
+    }
+    return this.token;
   }
 
   // Método genérico para hacer requests
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
+    const token = this.getToken();
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -110,10 +133,36 @@ class ApiService {
   }
 
   async loginUser(credentials) {
-    return this.request('/auth/login', {
+    const response = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
+    
+    // Guardar token si el login es exitoso
+    if (response.success && response.token) {
+      this.setToken(response.token);
+    }
+    
+    return response;
+  }
+
+  // Logout del usuario
+  async logoutUser() {
+    try {
+      await this.request('/auth/logout', {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.warn('Error al hacer logout en el servidor:', error);
+    } finally {
+      // Limpiar token independientemente del resultado
+      this.setToken(null);
+    }
+  }
+
+  // Obtener perfil del usuario actual
+  async getCurrentUser() {
+    return this.request('/auth/me');
   }
 
   async getInterests() {
@@ -132,6 +181,7 @@ class ApiService {
   async uploadUserPhoto(userId, file, { es_principal = false } = {}) {
     const endpoint = `/users/${userId}/photos`;
     const url = `${this.baseUrl}${endpoint}`;
+    const token = this.getToken();
     const formData = new FormData();
     formData.append('foto', file);
     formData.append('es_principal', es_principal ? 'true' : 'false');
@@ -139,6 +189,9 @@ class ApiService {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         body: formData
       });
       const data = await response.json();
@@ -223,6 +276,12 @@ class ApiService {
 
   async deleteUser(userId) {
     return this.request(`/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteUserPhoto(userId, photoId) {
+    return this.request(`/users/${userId}/photos/${photoId}`, {
       method: 'DELETE',
     });
   }

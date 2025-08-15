@@ -289,12 +289,20 @@ class SearchController {
     const MessageModel = require('../models/Message');
     
     try {
-      const { recipientId, senderId, mensaje } = req.body;
+      const { recipientId, mensaje } = req.body;
+      const senderId = req.user.id; // Obtener del token JWT autenticado
       
-      if (!recipientId || !senderId || !mensaje) {
+      console.log('📨 sendDirectMessage - Datos recibidos:', {
+        recipientId,
+        senderId,
+        mensaje: mensaje?.substring(0, 50) + '...',
+        userFromToken: req.user
+      });
+      
+      if (!recipientId || !mensaje) {
         return res.status(400).json({
           success: false,
-          message: 'ID del destinatario, remitente y mensaje son requeridos'
+          message: 'ID del destinatario y mensaje son requeridos'
         });
       }
 
@@ -306,10 +314,13 @@ class SearchController {
       }
 
       // 1. Crear o obtener conversación existente
+      console.log('🔄 Creando/obteniendo conversación entre:', senderId, 'y', recipientId);
       const conversationResult = await ConversationModel.getOrCreateConversation(
         parseInt(senderId),
         parseInt(recipientId)
       );
+
+      console.log('💬 Resultado de conversación:', conversationResult);
 
       if (!conversationResult.success) {
         return res.status(500).json({
@@ -320,23 +331,38 @@ class SearchController {
       }
 
       // 2. Enviar mensaje en la conversación
+      const conversationId = conversationResult.data?.data?.id || conversationResult.data?.id;
+      console.log('📝 Creando mensaje en conversación ID:', conversationId);
+      
+      if (!conversationId) {
+        console.error('❌ No se pudo obtener ID de conversación:', conversationResult);
+        return res.status(500).json({
+          success: false,
+          message: 'Error obteniendo ID de conversación'
+        });
+      }
+      
       const messageResult = await MessageModel.createMessage(
-        conversationResult.data.id,
+        conversationId,
         parseInt(senderId),
         mensaje
       );
 
+      console.log('✉️ Resultado de crear mensaje:', messageResult);
+
       if (messageResult.success) {
+        console.log('✅ Mensaje enviado exitosamente');
         res.json({
           success: true,
           message: 'Mensaje enviado correctamente',
           data: {
-            conversation: conversationResult.data,
+            conversation: conversationResult.data?.data || conversationResult.data,
             message: messageResult.data,
             conversationCreated: conversationResult.created
           }
         });
       } else {
+        console.log('❌ Error enviando mensaje:', messageResult.error);
         res.status(500).json({
           success: false,
           message: 'Error enviando mensaje',

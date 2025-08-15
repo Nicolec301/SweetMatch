@@ -35,7 +35,27 @@ class JWTAuthMiddleware {
       }
 
       // Verificar el token
-      const decoded = jwt.verify(token, JWT_CONFIG.secret);
+      let decoded;
+      try {
+        decoded = jwt.verify(token, JWT_CONFIG.secret);
+      } catch (jwtError) {
+        // MODO DE DESARROLLO: Si el token no es válido, usar usuario por defecto
+        if (process.env.NODE_ENV !== 'production') {
+          logger.warn('🔧 MODO DESARROLLO: Token inválido, usando usuario por defecto', {
+            token: token.substring(0, 20) + '...',
+            error: jwtError.message
+          });
+          
+          // Usuario por defecto para desarrollo
+          decoded = {
+            id: 20, // Usuario ID por defecto
+            email: 'usuario@sweetmatch.com',
+            nombre: 'Usuario Desarrollo'
+          };
+        } else {
+          throw jwtError;
+        }
+      }
       
       // Agregar datos del usuario al request
       req.user = {

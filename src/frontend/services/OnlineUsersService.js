@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '../../config.js';
-import SessionManager from '../../backend/services/SessionManager.js';
+import SessionManager from './SessionManager.js';
 
 class OnlineUsersService {
     constructor() {

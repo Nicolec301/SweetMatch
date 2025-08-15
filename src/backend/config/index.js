@@ -20,6 +20,12 @@ const config = {
     connectionTimeoutMillis: 2000,
   },
   
+  // Configuración JWT
+  jwt: {
+    secret: process.env.JWT_SECRET || 'sweetmatch_jwt_secret_key_2024',
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+  },
+  
   // Configuración del servidor
   server: {
     port: parseInt(process.env.PORT) || 3001,
@@ -31,5 +37,6 @@ const config = {
 module.exports = {
   GOOGLE_CLIENT_ID: config.google.clientId,
   DB_CONFIG: config.database,
-  SERVER_CONFIG: config.server
+  SERVER_CONFIG: config.server,
+  JWT_CONFIG: config.jwt
 };

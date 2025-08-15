@@ -6,12 +6,12 @@ Esta carpeta contiene los middlewares personalizados que se ejecutan entre las p
 
 ```
 middleware/
-└── 📄 tempAuth.js    # Middleware temporal de autenticación
+└── 📄 JWTAuthMiddleware.authenticate.js    # Middleware temporal de autenticación
 ```
 
 ---
 
-## 🔐 tempAuth.js - Middleware de Autenticación Temporal
+## 🔐 JWTAuthMiddleware.authenticate.js - Middleware de Autenticación Temporal
 
 **Propósito**: Manejo temporal de autenticación mientras se implementa el sistema completo de autenticación con JWT/Sessions.
 
@@ -19,7 +19,7 @@ middleware/
 
 #### **1. Validación de usuarios**
 ```javascript
-const tempAuth = (req, res, next) => {
+const JWTAuthMiddleware.authenticate = (req, res, next) => {
   try {
     // Obtener token del header Authorization
     const authHeader = req.headers.authorization;
@@ -59,7 +59,7 @@ const tempAuth = (req, res, next) => {
     });
     
   } catch (error) {
-    console.error('Error en tempAuth middleware:', error);
+    console.error('Error en JWTAuthMiddleware.authenticate middleware:', error);
     return res.status(500).json({
       success: false,
       message: 'Error interno de autenticación'
@@ -75,7 +75,7 @@ const optionalAuth = (req, res, next) => {
   
   if (authHeader) {
     // Si hay header, validar
-    return tempAuth(req, res, next);
+    return JWTAuthMiddleware.authenticate(req, res, next);
   } else {
     // Si no hay header, continuar sin usuario
     req.user = null;
@@ -110,17 +110,17 @@ const requireRole = (role) => {
 ### **Uso en rutas**:
 ```javascript
 // En routes/api.js
-const { tempAuth, optionalAuth, requireRole } = require('../middleware/tempAuth');
+const JWTAuthMiddleware = require('../middleware/jwtAuth');
 
 // Rutas protegidas
-router.get('/users/profile', tempAuth, UserController.getProfile);
-router.put('/users/:id', tempAuth, UserController.updateUser);
+router.get('/users/profile', JWTAuthMiddleware.authenticate, UserController.getProfile);
+router.put('/users/:id', JWTAuthMiddleware.authenticate, UserController.updateUser);
 
 // Rutas con autenticación opcional
-router.get('/users/search', optionalAuth, SearchController.searchUsers);
+router.get('/users/search', JWTAuthMiddleware.optional, SearchController.searchUsers);
 
 // Rutas con roles específicos
-router.delete('/users/:id', tempAuth, requireRole('admin'), UserController.deleteUser);
+router.delete('/users/:id', JWTAuthMiddleware.authenticate, requireRole('admin'), UserController.deleteUser);
 ```
 
 ---
@@ -343,8 +343,8 @@ app.use('/api/auth', authLimiter);
 
 // 5. Rutas con middlewares específicos
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', tempAuth, require('./routes/users'));
-app.use('/api/matches', tempAuth, require('./routes/matches'));
+app.use('/api/users', JWTAuthMiddleware.authenticate, require('./routes/users'));
+app.use('/api/matches', JWTAuthMiddleware.authenticate, require('./routes/matches'));
 
 // 6. Error handling (siempre al final)
 app.use(errorHandler);
@@ -355,7 +355,7 @@ app.use(errorHandler);
 const conditionalAuth = (condition) => {
   return (req, res, next) => {
     if (condition(req)) {
-      return tempAuth(req, res, next);
+      return JWTAuthMiddleware.authenticate(req, res, next);
     } else {
       return next();
     }
@@ -403,19 +403,19 @@ const validateOwnership = (resourceModel) => {
 
 ## 🔧 Testing de Middlewares
 
-### **Test para tempAuth**:
+### **Test para JWTAuthMiddleware.authenticate**:
 ```javascript
 const request = require('supertest');
 const express = require('express');
-const tempAuth = require('../middleware/tempAuth');
+const JWTAuthMiddleware.authenticate = require('../middleware/JWTAuthMiddleware.authenticate');
 
-describe('tempAuth middleware', () => {
+describe('JWTAuthMiddleware.authenticate middleware', () => {
   let app;
   
   beforeEach(() => {
     app = express();
     app.use(express.json());
-    app.get('/protected', tempAuth, (req, res) => {
+    app.get('/protected', JWTAuthMiddleware.authenticate, (req, res) => {
       res.json({ success: true, user: req.user });
     });
   });
@@ -494,3 +494,4 @@ app.use(devMiddleware);
 ---
 
 *Los middlewares proporcionan una capa de procesamiento consistente y reutilizable para todas las peticiones HTTP, garantizando seguridad, validación y funcionalidades transversales en SweetMatch.*
+

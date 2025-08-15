@@ -29,7 +29,7 @@ const RegisterController = require('../controllers/RegisterController');
 const SearchController = require('../controllers/SearchController');
 
 // Importar middlewares
-const { tempAuth, optionalAuth } = require('../middleware/tempAuth');
+const JWTAuthMiddleware = require('../middleware/jwtAuth');
 
 module.exports = router;
 ```
@@ -65,7 +65,7 @@ router.post('/auth/google', async (req, res) => {
  * @desc    Cerrar sesión del usuario
  * @access  Private
  */
-router.post('/auth/logout', tempAuth, async (req, res) => {
+router.post('/auth/logout', JWTAuthMiddleware.authenticate, async (req, res) => {
   try {
     // Implementar lógica de logout
     res.json({
@@ -88,7 +88,7 @@ router.post('/auth/logout', tempAuth, async (req, res) => {
  * @desc    Obtener perfil del usuario autenticado
  * @access  Private
  */
-router.get('/auth/profile', tempAuth, async (req, res) => {
+router.get('/auth/profile', JWTAuthMiddleware.authenticate, async (req, res) => {
   try {
     const userId = req.user.id;
     await UserController.getUserProfile(req, res);
@@ -113,7 +113,7 @@ router.get('/auth/profile', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { page?, limit?, gender?, minAge?, maxAge?, city? }
  */
-router.get('/users', tempAuth, async (req, res) => {
+router.get('/users', JWTAuthMiddleware.authenticate, async (req, res) => {
   await UserController.getUsers(req, res);
 });
 
@@ -122,7 +122,7 @@ router.get('/users', tempAuth, async (req, res) => {
  * @desc    Obtener usuario específico por ID
  * @access  Private
  */
-router.get('/users/:id', tempAuth, async (req, res) => {
+router.get('/users/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   await UserController.getUserById(req, res);
 });
 
@@ -131,7 +131,7 @@ router.get('/users/:id', tempAuth, async (req, res) => {
  * @desc    Actualizar información de usuario
  * @access  Private (solo el propio usuario)
  */
-router.put('/users/:id', tempAuth, async (req, res) => {
+router.put('/users/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   // Verificar que el usuario solo pueda editar su propio perfil
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
@@ -147,7 +147,7 @@ router.put('/users/:id', tempAuth, async (req, res) => {
  * @desc    Eliminar/desactivar cuenta de usuario
  * @access  Private (solo el propio usuario)
  */
-router.delete('/users/:id', tempAuth, async (req, res) => {
+router.delete('/users/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -165,7 +165,7 @@ router.delete('/users/:id', tempAuth, async (req, res) => {
  * @desc    Obtener fotos de un usuario
  * @access  Private
  */
-router.get('/users/:id/photos', tempAuth, async (req, res) => {
+router.get('/users/:id/photos', JWTAuthMiddleware.authenticate, async (req, res) => {
   await UserController.getUserPhotos(req, res);
 });
 
@@ -174,7 +174,7 @@ router.get('/users/:id/photos', tempAuth, async (req, res) => {
  * @desc    Subir nueva foto de perfil
  * @access  Private (solo el propio usuario)
  */
-router.post('/users/:id/photos', tempAuth, async (req, res) => {
+router.post('/users/:id/photos', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -189,7 +189,7 @@ router.post('/users/:id/photos', tempAuth, async (req, res) => {
  * @desc    Actualizar foto (ej: establecer como principal)
  * @access  Private (solo el propio usuario)
  */
-router.put('/users/:id/photos/:photoId', tempAuth, async (req, res) => {
+router.put('/users/:id/photos/:photoId', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -204,7 +204,7 @@ router.put('/users/:id/photos/:photoId', tempAuth, async (req, res) => {
  * @desc    Eliminar foto de perfil
  * @access  Private (solo el propio usuario)  
  */
-router.delete('/users/:id/photos/:photoId', tempAuth, async (req, res) => {
+router.delete('/users/:id/photos/:photoId', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -222,7 +222,7 @@ router.delete('/users/:id/photos/:photoId', tempAuth, async (req, res) => {
  * @desc    Obtener intereses de un usuario
  * @access  Private
  */
-router.get('/users/:id/interests', tempAuth, async (req, res) => {
+router.get('/users/:id/interests', JWTAuthMiddleware.authenticate, async (req, res) => {
   await UserController.getUserInterests(req, res);
 });
 
@@ -232,7 +232,7 @@ router.get('/users/:id/interests', tempAuth, async (req, res) => {
  * @access  Private (solo el propio usuario)
  * @body    { interests: [interestId1, interestId2, ...] }
  */
-router.put('/users/:id/interests', tempAuth, async (req, res) => {
+router.put('/users/:id/interests', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id !== req.params.id) {
     return res.status(403).json({
       success: false,
@@ -254,7 +254,7 @@ router.put('/users/:id/interests', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { status?, page?, limit? }
  */
-router.get('/matches', tempAuth, async (req, res) => {
+router.get('/matches', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MatchController.getUserMatches(req, res);
 });
 
@@ -263,7 +263,7 @@ router.get('/matches', tempAuth, async (req, res) => {
  * @desc    Dar like a un usuario
  * @access  Private
  */
-router.post('/matches/like/:targetUserId', tempAuth, async (req, res) => {
+router.post('/matches/like/:targetUserId', JWTAuthMiddleware.authenticate, async (req, res) => {
   // Verificar que no sea el mismo usuario
   if (req.user.id === req.params.targetUserId) {
     return res.status(400).json({
@@ -279,7 +279,7 @@ router.post('/matches/like/:targetUserId', tempAuth, async (req, res) => {
  * @desc    Hacer pass/dislike a un usuario
  * @access  Private
  */
-router.post('/matches/pass/:targetUserId', tempAuth, async (req, res) => {
+router.post('/matches/pass/:targetUserId', JWTAuthMiddleware.authenticate, async (req, res) => {
   if (req.user.id === req.params.targetUserId) {
     return res.status(400).json({
       success: false,
@@ -294,7 +294,7 @@ router.post('/matches/pass/:targetUserId', tempAuth, async (req, res) => {
  * @desc    Dar super like a un usuario (futuro)
  * @access  Private
  */
-router.post('/matches/super/:targetUserId', tempAuth, async (req, res) => {
+router.post('/matches/super/:targetUserId', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MatchController.createSuperLike(req, res);
 });
 
@@ -304,7 +304,7 @@ router.post('/matches/super/:targetUserId', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { maxDistance?, ageRange?, interests?, limit? }
  */
-router.get('/matches/suggestions', tempAuth, async (req, res) => {
+router.get('/matches/suggestions', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MatchController.getMatchSuggestions(req, res);
 });
 
@@ -313,7 +313,7 @@ router.get('/matches/suggestions', tempAuth, async (req, res) => {
  * @desc    Obtener matches mutuos confirmados
  * @access  Private
  */
-router.get('/matches/mutual', tempAuth, async (req, res) => {
+router.get('/matches/mutual', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MatchController.getMutualMatches(req, res);
 });
 
@@ -322,7 +322,7 @@ router.get('/matches/mutual', tempAuth, async (req, res) => {
  * @desc    Deshacer/eliminar match
  * @access  Private (solo participantes del match)
  */
-router.delete('/matches/:matchId', tempAuth, async (req, res) => {
+router.delete('/matches/:matchId', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MatchController.unmatch(req, res);
 });
 ```
@@ -339,7 +339,7 @@ router.delete('/matches/:matchId', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { page?, limit?, status? }
  */
-router.get('/conversations', tempAuth, async (req, res) => {
+router.get('/conversations', JWTAuthMiddleware.authenticate, async (req, res) => {
   await ConversationController.getUserConversations(req, res);
 });
 
@@ -348,7 +348,7 @@ router.get('/conversations', tempAuth, async (req, res) => {
  * @desc    Obtener conversación específica
  * @access  Private (solo participantes)
  */
-router.get('/conversations/:id', tempAuth, async (req, res) => {
+router.get('/conversations/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   await ConversationController.getConversation(req, res);
 });
 
@@ -358,7 +358,7 @@ router.get('/conversations/:id', tempAuth, async (req, res) => {
  * @access  Private
  * @body    { participantId: string }
  */
-router.post('/conversations', tempAuth, async (req, res) => {
+router.post('/conversations', JWTAuthMiddleware.authenticate, async (req, res) => {
   await ConversationController.createConversation(req, res);
 });
 
@@ -368,7 +368,7 @@ router.post('/conversations', tempAuth, async (req, res) => {
  * @access  Private (solo participantes)
  * @body    { status?: 'active'|'archived'|'blocked' }
  */
-router.put('/conversations/:id', tempAuth, async (req, res) => {
+router.put('/conversations/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   await ConversationController.updateConversation(req, res);
 });
 
@@ -377,7 +377,7 @@ router.put('/conversations/:id', tempAuth, async (req, res) => {
  * @desc    Eliminar/archivar conversación
  * @access  Private (solo participantes)
  */
-router.delete('/conversations/:id', tempAuth, async (req, res) => {
+router.delete('/conversations/:id', JWTAuthMiddleware.authenticate, async (req, res) => {
   await ConversationController.deleteConversation(req, res);
 });
 ```
@@ -390,7 +390,7 @@ router.delete('/conversations/:id', tempAuth, async (req, res) => {
  * @access  Private (solo participantes de la conversación)
  * @query   { page?, limit?, before? }
  */
-router.get('/conversations/:conversationId/messages', tempAuth, async (req, res) => {
+router.get('/conversations/:conversationId/messages', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.getConversationMessages(req, res);
 });
 
@@ -400,7 +400,7 @@ router.get('/conversations/:conversationId/messages', tempAuth, async (req, res)
  * @access  Private (solo participantes de la conversación)
  * @body    { content: string, type?: 'text'|'image'|'emoji' }
  */
-router.post('/conversations/:conversationId/messages', tempAuth, async (req, res) => {
+router.post('/conversations/:conversationId/messages', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.sendMessage(req, res);
 });
 
@@ -410,7 +410,7 @@ router.post('/conversations/:conversationId/messages', tempAuth, async (req, res
  * @access  Private (solo el autor del mensaje)
  * @body    { content: string }
  */
-router.put('/messages/:messageId', tempAuth, async (req, res) => {
+router.put('/messages/:messageId', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.editMessage(req, res);
 });
 
@@ -419,7 +419,7 @@ router.put('/messages/:messageId', tempAuth, async (req, res) => {
  * @desc    Eliminar mensaje
  * @access  Private (solo el autor del mensaje)
  */
-router.delete('/messages/:messageId', tempAuth, async (req, res) => {
+router.delete('/messages/:messageId', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.deleteMessage(req, res);
 });
 
@@ -429,7 +429,7 @@ router.delete('/messages/:messageId', tempAuth, async (req, res) => {
  * @access  Private
  * @body    { messageIds: [string], conversationId: string }
  */
-router.put('/messages/read', tempAuth, async (req, res) => {
+router.put('/messages/read', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.markAsRead(req, res);
 });
 
@@ -438,7 +438,7 @@ router.put('/messages/read', tempAuth, async (req, res) => {
  * @desc    Obtener conteo de mensajes no leídos
  * @access  Private
  */
-router.get('/messages/unread/count', tempAuth, async (req, res) => {
+router.get('/messages/unread/count', JWTAuthMiddleware.authenticate, async (req, res) => {
   await MessageController.getUnreadCount(req, res);
 });
 ```
@@ -462,7 +462,7 @@ router.get('/messages/unread/count', tempAuth, async (req, res) => {
  *   limit?: number        // Resultados por página
  * }
  */
-router.get('/search/users', tempAuth, async (req, res) => {
+router.get('/search/users', JWTAuthMiddleware.authenticate, async (req, res) => {
   await SearchController.searchUsers(req, res);
 });
 
@@ -483,7 +483,7 @@ router.get('/search/users', tempAuth, async (req, res) => {
  *   limit: number
  * }
  */
-router.post('/search/advanced', tempAuth, async (req, res) => {
+router.post('/search/advanced', JWTAuthMiddleware.authenticate, async (req, res) => {
   await SearchController.advancedSearch(req, res);
 });
 
@@ -492,7 +492,7 @@ router.post('/search/advanced', tempAuth, async (req, res) => {
  * @desc    Obtener opciones disponibles para filtros
  * @access  Private
  */
-router.get('/search/filters', tempAuth, async (req, res) => {
+router.get('/search/filters', JWTAuthMiddleware.authenticate, async (req, res) => {
   await SearchController.getFilterOptions(req, res);
 });
 
@@ -502,7 +502,7 @@ router.get('/search/filters', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { lat: number, lng: number, radius?: number, limit?: number }
  */
-router.get('/search/nearby', tempAuth, async (req, res) => {
+router.get('/search/nearby', JWTAuthMiddleware.authenticate, async (req, res) => {
   await SearchController.getNearbyUsers(req, res);
 });
 
@@ -512,7 +512,7 @@ router.get('/search/nearby', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { limit?: number }
  */
-router.get('/search/online', tempAuth, async (req, res) => {
+router.get('/search/online', JWTAuthMiddleware.authenticate, async (req, res) => {
   await SearchController.getOnlineUsers(req, res);
 });
 ```
@@ -563,7 +563,7 @@ router.post('/register/google', async (req, res) => {
  *   fotos?: File[]
  * }
  */
-router.post('/register/complete', tempAuth, async (req, res) => {
+router.post('/register/complete', JWTAuthMiddleware.authenticate, async (req, res) => {
   await RegisterController.completeProfile(req, res);
 });
 
@@ -589,7 +589,7 @@ router.post('/register/verify', async (req, res) => {
  * @access  Private
  * @query   { category?: string }
  */
-router.get('/interests', tempAuth, async (req, res) => {
+router.get('/interests', JWTAuthMiddleware.authenticate, async (req, res) => {
   try {
     const Interest = require('../models/Interest');
     const result = await Interest.getByCategories();
@@ -611,7 +611,7 @@ router.get('/interests', tempAuth, async (req, res) => {
  * @access  Private
  * @query   { limit?: number }
  */
-router.get('/interests/popular', tempAuth, async (req, res) => {
+router.get('/interests/popular', JWTAuthMiddleware.authenticate, async (req, res) => {
   try {
     const { limit = 20 } = req.query;
     const Interest = require('../models/Interest');
@@ -645,7 +645,7 @@ router.get('/interests/popular', tempAuth, async (req, res) => {
  * @desc    Estadísticas del usuario autenticado
  * @access  Private
  */
-router.get('/stats/user', tempAuth, async (req, res) => {
+router.get('/stats/user', JWTAuthMiddleware.authenticate, async (req, res) => {
   // Implementar estadísticas personales
   // - Total de likes dados/recibidos
   // - Número de matches
@@ -662,7 +662,7 @@ router.get('/stats/user', tempAuth, async (req, res) => {
  * @desc    Estadísticas generales del sistema (admin)
  * @access  Private (admin only)
  */
-router.get('/stats/system', tempAuth, /* requireRole('admin'), */ async (req, res) => {
+router.get('/stats/system', JWTAuthMiddleware.authenticate, /* requireRole('admin'), */ async (req, res) => {
   // Implementar estadísticas del sistema
   // - Usuarios activos
   // - Matches por día
@@ -698,7 +698,7 @@ const validateUserId = (req, res, next) => {
 };
 
 // Aplicar a rutas con parámetro :id
-router.get('/users/:id', validateUserId, tempAuth, UserController.getUserById);
+router.get('/users/:id', validateUserId, JWTAuthMiddleware.authenticate, UserController.getUserById);
 ```
 
 ### **Validación de paginación**
@@ -720,7 +720,7 @@ const validatePagination = (req, res, next) => {
 };
 
 // Aplicar a rutas con paginación
-router.get('/users', validatePagination, tempAuth, UserController.getUsers);
+router.get('/users', validatePagination, JWTAuthMiddleware.authenticate, UserController.getUsers);
 ```
 
 ---
@@ -777,3 +777,4 @@ Accept-Language: es-CO            // Para internacionalización futura
 ---
 
 *Las rutas de SweetMatch están diseñadas siguiendo principios REST, con endpoints intuitivos, manejo consistente de errores y documentación clara para facilitar el desarrollo y mantenimiento.*
+

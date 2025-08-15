@@ -20,7 +20,7 @@ backend/
 │   ├── 📄 UserController.js
 │   └── 📄 README.md               # Documentación de controladores
 ├── � middleware/                 # Middlewares personalizados
-│   ├── 📄 tempAuth.js             # Autenticación temporal
+│   ├── 📄 jwtAuth.js              # Autenticación JWT
 │   └── 📄 README.md               # Documentación de middleware
 ├── � models/                     # Modelos de datos
 │   ├── 📄 BaseModel.js            # Modelo base con CRUD
