@@ -7,43 +7,6 @@ import './Chat.css';
 import { io } from 'socket.io-client';
 import { SOCKET_BASE_URL } from '../../../../config';
 
-// Función para sanitizar completamente cualquier objeto para React
-const sanitizeForReact = (obj) => {
-  // Mantener tipos primitivos; sólo clonar estructuras y eliminar valores peligrosos
-  if (obj === null || obj === undefined) return '';
-  if (typeof obj !== 'object') return obj; // devolver primitivo tal cual
-
-  if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeForReact(item));
-  }
-
-  const cleaned = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === null || v === undefined) cleaned[k] = '';
-    else if (typeof v === 'object') cleaned[k] = sanitizeForReact(v);
-    else cleaned[k] = v; // mantener número, string, boolean
-  }
-  return cleaned;
-};
-
-// Función para sanitizar conversaciones completas
-const sanitizeConversations = (conversations) => {
-  const sanitized = {};
-  for (const [id, conv] of Object.entries(conversations)) {
-    sanitized[id] = {
-      nombre: String(conv.nombre || 'Usuario'),
-      imagen: String(conv.imagen || '/images/default-avatar.png'),
-      vista_previa: String(conv.vista_previa || 'Sin mensajes'),
-      tiempo_indicador: String(conv.tiempo_indicador || 'Ahora'),
-      ultima_actividad: String(conv.ultima_actividad || 'Desconocido'),
-  lastMessageAt: conv.lastMessageAt || new Date().toISOString(),
-  // Mantener mensajes sin forzar a string; sólo sanitizar superficialmente
-  mensajes: Array.isArray(conv.mensajes) ? conv.mensajes.map(m => sanitizeForReact(m)) : []
-    };
-  }
-  return sanitized;
-};
-
 const Chat = () => {
   const [conversations, setConversations] = useState({});
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -69,63 +32,65 @@ const Chat = () => {
       const result = await ChatService.getUserConversations();
       console.log('📋 Resultado de getUserConversations:', result);
       
-      if (result.success && result.data.length > 0) {
+      if (result.success && result.data && result.data.length > 0) {
         console.log('✅ Conversaciones encontradas:', result.data.length);
+        
         // Convertir array de conversaciones a objeto con formato esperado
         const conversationsObj = {};
         
         result.data.forEach(conv => {
           console.log('🔄 Procesando conversación:', conv);
-          const formattedConv = ChatService.formatConversationForDisplay(conv, currentUser?.id);
+          
+          // Formatear conversación de manera más simple
+          const formattedConv = {
+            nombre: conv.otro_usuario_nombre || 'Usuario Desconocido',
+            imagen: conv.otro_usuario_foto || '/images/default-avatar.png',
+            vista_previa: conv.ultimo_mensaje || 'Sin mensajes',
+            tiempo_indicador: conv.ultimo_mensaje_fecha 
+              ? new Date(conv.ultimo_mensaje_fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+              : 'Ahora',
+            ultima_actividad: 'En línea',
+            lastMessageAt: conv.ultimo_mensaje_fecha || new Date().toISOString(),
+            mensajes: [] // Se cargarán después
+          };
+          
           console.log('💬 Conversación formateada:', formattedConv);
-          if (formattedConv) {
-            conversationsObj[conv.id] = formattedConv;
-          }
+          conversationsObj[conv.id] = formattedConv;
         });
         
-        console.log('📦 Objeto de conversaciones antes de sanitizar:', conversationsObj);
+        console.log('📦 Objeto de conversaciones:', conversationsObj);
         
-        // Sanitizar conversaciones antes de establecer el estado
-        const sanitizedConversations = sanitizeConversations(conversationsObj);
-        console.log('🧼 Conversaciones sanitizadas:', sanitizedConversations);
-        // Fusionar conservando mensajes ya cargados
-        setConversations(prev => {
-          const merged = { ...sanitizedConversations };
-          Object.keys(prev).forEach(id => {
-            if (prev[id]?.mensajes?.length && merged[id]) {
-              merged[id].mensajes = prev[id].mensajes; // conservar mensajes existentes
-            }
-          });
-          return merged;
-        });
+        // Establecer conversaciones sin sanitizar tanto
+        setConversations(conversationsObj);
         
-        // Seleccionar la primera conversación si no hay una seleccionada
-        if (!currentConversationId && Object.keys(sanitizedConversations).length > 0) {
-          const firstConvId = Object.entries(sanitizedConversations)
-            .sort((a,b) => new Date(b[1].lastMessageAt||0) - new Date(a[1].lastMessageAt||0))[0][0];
+        // Seleccionar la primera conversación
+        if (!currentConversationId && Object.keys(conversationsObj).length > 0) {
+          const firstConvId = Object.keys(conversationsObj)[0];
           console.log('🎯 Seleccionando primera conversación:', firstConvId);
           setCurrentConversationId(firstConvId);
         }
       } else {
-        console.log('📝 No hay conversaciones reales, usando datos por defecto');
-        // Mantener datos por defecto si no hay conversaciones reales
-        setConversations(getDefaultConversations());
-        setCurrentConversationId('sophia');
+        console.log('📝 No hay conversaciones reales o resultado fallido');
+        console.log('📝 Resultado completo:', result);
+        
+        // Solo usar datos por defecto si realmente no hay conversaciones
+        if (!result.success) {
+          console.error('❌ Error en la API:', result.error);
+        }
+        
+        // Mantener vacío en lugar de usar defaults automáticamente
+        setConversations({});
       }
     } catch (error) {
       console.error('💥 Error cargando conversaciones:', error);
-      // Usar datos por defecto en caso de error
-      setConversations(getDefaultConversations());
-      setCurrentConversationId('sophia');
+      setError('Error al cargar las conversaciones');
+      setConversations({});
     }
-  // currentConversationId intencionalmente excluido para no regenerar lista y perder mensajes cargados
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  }, [currentConversationId]);
 
   const loadConversationMessages = useCallback(async (conversationId) => {
     try {
       console.log('🔍 Cargando mensajes para conversación:', conversationId);
-      console.log('🔍 Es conversación por defecto?', isDefaultConversation(conversationId));
       
       // Si es una conversación de demostración, no hacer llamada a API
       if (isDefaultConversation(conversationId)) {
@@ -138,81 +103,49 @@ const Chat = () => {
       console.log('📨 Resultado de getConversationMessages:', result);
       
       if (result.success) {
-        if (result.data.length > 0) {
+        if (result.data && result.data.length > 0) {
           console.log('✅ Mensajes obtenidos exitosamente:', result.data.length, 'mensajes');
-          const formattedMessages = result.data
-            .map(msg => ChatService.formatMessageForDisplay(msg, currentUser?.id))
-            .filter(msg => msg !== null) // Filtrar mensajes nulos o mal formateados
-            .map(msg => {
-              // Sanitización adicional para garantizar que TODOS los valores sean primitivos
-              const sanitizedMsg = {
-                id: String(msg.id || Math.random()),
-                contenido: String(msg.contenido || '[Mensaje sin contenido]'),
-                hora: String(msg.hora || 'Ahora'),
-                remitente: Boolean(msg.remitente),
-                emisor: String(msg.emisor || 'Usuario'),
-                leido: Boolean(msg.leido),
-                tipo: String(msg.tipo || 'texto')
-              };
-
-              // Validar que no hay objetos anidados
-              Object.keys(sanitizedMsg).forEach(key => {
-                const value = sanitizedMsg[key];
-                if (value !== null && typeof value === 'object') {
-                  console.error(`🚨 OBJETO ANIDADO en mensaje API en ${key}:`, value);
-                  sanitizedMsg[key] = String(value);
-                }
-              });
-
-              return sanitizedMsg;
-            });
           
-          console.log('💬 Mensajes completamente sanitizados:', formattedMessages);
+          const formattedMessages = result.data.map(msg => ({
+            id: String(msg.id || Math.random()),
+            contenido: String(msg.contenido || '[Mensaje sin contenido]'),
+            hora: msg.fecha_envio 
+              ? new Date(msg.fecha_envio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+              : 'Ahora',
+            remitente: Boolean(msg.remitente_id === currentUser?.id),
+            emisor: msg.remitente_id === currentUser?.id 
+              ? 'Tú' 
+              : (msg.remitente_nombre || 'Usuario'),
+            leido: Boolean(msg.fecha_lectura),
+            tipo: 'texto'
+          }));
           
-          setConversations(prev => {
-            const updated = {
-              ...prev,
-              [conversationId]: {
-                ...prev[conversationId],
-                mensajes: formattedMessages
-              }
-            };
-            
-            // Sanitizar antes de establecer el estado
-            const sanitized = sanitizeConversations(updated);
-            console.log('🧼 Estado conversaciones sanitizado:', sanitized);
-            return sanitized;
-          });
-        } else {
-          // Si no hay mensajes, crear algunos de prueba
-          console.log('📝 No hay mensajes en la base de datos, creando mensajes de prueba...');
-          const testMessagesResult = await ChatService.createTestMessages();
+          console.log('💬 Mensajes formateados:', formattedMessages);
           
-          if (testMessagesResult.success) {
-            // Filtrar mensajes para esta conversación específica
-            const messagesForThisConversation = testMessagesResult.data.filter(
-              msg => msg.conversacion_id === parseInt(conversationId)
-            );
-            
-            if (messagesForThisConversation.length > 0) {
-              console.log('🧪 Usando mensajes de prueba para conversación:', messagesForThisConversation);
-              // Los mensajes de prueba ya están formateados, no necesitan formateo adicional
-              
-              setConversations(prev => ({
-                ...prev,
-                [conversationId]: {
-                  ...prev[conversationId],
-                  mensajes: messagesForThisConversation
-                }
-              }));
+          setConversations(prev => ({
+            ...prev,
+            [conversationId]: {
+              ...prev[conversationId],
+              mensajes: formattedMessages
             }
-          }
+          }));
+        } else {
+          console.log('📝 No hay mensajes en esta conversación');
+          setConversations(prev => ({
+            ...prev,
+            [conversationId]: {
+              ...prev[conversationId],
+              mensajes: []
+            }
+          }));
         }
       } else {
         console.error('❌ Error en getConversationMessages:', result.error);
+        setError('Error al cargar mensajes: ' + result.error);
       }
     } catch (error) {
       console.error('💥 Error cargando mensajes:', error);
+      setError('Error al cargar mensajes');
     }
   }, [currentUser]);
 
@@ -545,93 +478,6 @@ const Chat = () => {
     return ['sophia', 'andre', 'laura'].includes(conversationId);
   };
 
-  const getDefaultConversations = () => {
-    // Datos por defecto - mantener para demostración
-    return {
-      sophia: {
-        nombre: "Sofía Martínez",
-        imagen: "/images/Sofia.png",
-        vista_previa: "¿Cuál película piensas ver?",
-        tiempo_indicador: "2h",
-        ultima_actividad: "En línea",
-        mensajes: [
-          {
-            id: 1,
-            contenido: "¡Hola! ¿Cómo va tu día?",
-            hora: "14:30",
-            remitente: false,
-            emisor: "Sofía",
-            leido: true,
-            tipo: "texto"
-          },
-          {
-            id: 2,
-            contenido: "¡Hola Sofía! Bastante bien, acabo de terminar un ejercicio. ¿Y el tuyo?",
-            hora: "14:35",
-            remitente: true,
-            emisor: "Tú",
-            leido: true,
-            tipo: "texto"
-          },
-          {
-            id: 3,
-            contenido: "¡Genial! El mío también va muy bien. ¿Te gusta el ejercicio?",
-            hora: "14:40",
-            remitente: false,
-            emisor: "Sofía",
-            leido: true,
-            tipo: "texto"
-          }
-        ]
-      },
-      andre: {
-        nombre: "André González",
-        imagen: "/images/andres.png",
-        vista_previa: "¿Te gustaría salir este fin de semana?",
-        tiempo_indicador: "1d",
-        ultima_actividad: "Hace 2 horas",
-        mensajes: [
-          {
-            id: 1,
-            contenido: "Hey! ¿Cómo va todo?",
-            hora: "12:15",
-            remitente: false,
-            emisor: "André",
-            leido: true,
-            tipo: "texto"
-          },
-          {
-            id: 2,
-            contenido: "Todo bien, ¿y tú?",
-            hora: "12:20",
-            remitente: true,
-            emisor: "Tú",
-            leido: true,
-            tipo: "texto"
-          }
-        ]
-      },
-      laura: {
-        nombre: "Laura Fernández",
-        imagen: "/images/laura.png",
-        vista_previa: "Me encanta esa canción!",
-        tiempo_indicador: "3d",
-        ultima_actividad: "Hace 1 día",
-        mensajes: [
-          {
-            id: 1,
-            contenido: "¿Has escuchado la nueva canción de...?",
-            hora: "10:00",
-            remitente: false,
-            emisor: "Laura",
-            leido: true,
-            tipo: "texto"
-          }
-        ]
-      }
-    };
-  };
-
   const simulateResponse = () => {
     const currentConv = getCurrentConversation();
     const responses = [
@@ -820,41 +666,40 @@ const Chat = () => {
           </div>
           
           <div className="conversations-list">
-            {Object.entries(conversations)
-              .sort((a,b) => new Date(b[1].lastMessageAt||0) - new Date(a[1].lastMessageAt||0))
-              .map(([id, conv]) => {
-              // Sanitizar las propiedades de la conversación para evitar objetos en React
-              const safeConv = {
-                imagen: String(conv.imagen || '/images/default-avatar.png'),
-                nombre: String(conv.nombre || 'Usuario'),
-                vista_previa: String(conv.vista_previa || 'Sin mensajes'),
-                tiempo_indicador: String(conv.tiempo_indicador || 'Ahora')
-              };
-
-              // Log para debugging
-              console.log(`🔍 Conversación sanitizada ${id}:`, safeConv);
-
-              return (
+            {Object.keys(conversations).length === 0 ? (
+              <div className="empty-conversations">
+                <p>No tienes conversaciones aún.</p>
+                <button 
+                  onClick={openNewMessageModal}
+                  className="start-conversation-btn"
+                >
+                  Iniciar una conversación
+                </button>
+              </div>
+            ) : (
+              Object.entries(conversations)
+                .sort((a,b) => new Date(b[1].lastMessageAt||0) - new Date(a[1].lastMessageAt||0))
+                .map(([id, conv]) => (
                 <div
                   key={id}
                   className={`conversation-item ${currentConversationId === id ? 'active' : ''}`}
                   onClick={() => setCurrentConversationId(id)}
                 >
                   <div className="conversation-avatar">
-                    <img src={safeConv.imagen} alt={safeConv.nombre} />
+                    <img src={conv.imagen || '/images/default-avatar.png'} alt={conv.nombre || 'Usuario'} />
                     <div className="status-indicator online"></div>
                   </div>
                   <div className="conversation-info">
-                    <div className="conversation-name">{safeConv.nombre}</div>
-                    <div className="conversation-preview">{safeConv.vista_previa}</div>
+                    <div className="conversation-name">{conv.nombre || 'Usuario'}</div>
+                    <div className="conversation-preview">{conv.vista_previa || 'Sin mensajes'}</div>
                   </div>
                   <div className="conversation-meta">
-                    <div className="time-indicator">{JSON.stringify(safeConv.tiempo_indicador).replace(/"/g, '')}</div>
-                    <div className="unread-indicator">2</div>
+                    <div className="time-indicator">{conv.tiempo_indicador || 'Ahora'}</div>
+                    <div className="unread-indicator">•</div>
                   </div>
                 </div>
-              );
-            })}
+              ))
+            )}
           </div>
         </div>
 

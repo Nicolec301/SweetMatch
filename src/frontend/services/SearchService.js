@@ -8,7 +8,13 @@ class SearchService {
 
   // Obtener token del localStorage
   getToken() {
-    return localStorage.getItem('sweetmatch_token');
+    // Unificar fuentes de token: SessionManager usa 'sweetmatch_token', ApiService podría usar 'authToken'
+    const token = localStorage.getItem('sweetmatch_token') || localStorage.getItem('authToken');
+    if (!token) {
+      // Debug auxiliar para diagnosticar 401
+      console.warn('[SearchService] Token no encontrado en localStorage (sweetmatch_token | authToken)');
+    }
+    return token;
   }
 
   // Método genérico para hacer requests
@@ -43,11 +49,10 @@ class SearchService {
       if (error.success === false) {
         throw error;
       }
-      throw {
-        success: false,
-        message: error.message || 'Error de red',
-        error: error
-      };
+      const networkError = new Error(error.message || 'Error de red');
+      networkError.success = false;
+      networkError.originalError = error;
+      throw networkError;
     }
   }
 

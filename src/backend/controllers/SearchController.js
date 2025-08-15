@@ -38,8 +38,6 @@ class SearchController {
                RANDOM() as orden_aleatorio
         FROM usuarios u
         LEFT JOIN usuario_fotos uf ON u.id = uf.usuario_id AND uf.es_principal = true
-        LEFT JOIN usuario_intereses ui ON u.id = ui.usuario_id
-        LEFT JOIN intereses i ON ui.interes_id = i.id
         WHERE 1=1
       `;
 
@@ -71,7 +69,13 @@ class SearchController {
         const interesesArray = Array.isArray(intereses) ? intereses : [intereses];
         queryParams.push(...interesesArray);
         
-        baseQuery += ` AND LOWER(i.nombre) IN (${interesesArray.map((_, idx) => `$${paramCounter + idx}`).join(',')})`;
+        // Usar subconsulta para filtrar por intereses sin causar duplicados
+        baseQuery += ` AND u.id IN (
+          SELECT DISTINCT ui.usuario_id 
+          FROM usuario_intereses ui 
+          JOIN intereses i ON ui.interes_id = i.id 
+          WHERE LOWER(i.nombre) IN (${interesesArray.map((_, idx) => `$${paramCounter + idx}`).join(',')})
+        )`;
         paramCounter += interesesArray.length;
       }
 
@@ -196,7 +200,10 @@ class SearchController {
       if (result.success) {
         res.json({
           success: true,
-          data: result.data.map(interest => interest.nombre)
+          data: result.data.map(interest => ({
+            id: interest.id,
+            nombre: interest.nombre
+          }))
         });
       } else {
         res.status(500).json({

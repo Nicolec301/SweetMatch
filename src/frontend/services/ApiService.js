@@ -10,10 +10,13 @@ class ApiService {
   // Configurar token JWT
   setToken(token) {
     this.token = token;
-    // Guardar token en localStorage
+    // Guardar token unificado
     if (token) {
+      localStorage.setItem('sweetmatch_token', token);
+      // Mantener compatibilidad temporal con clave antigua
       localStorage.setItem('authToken', token);
     } else {
+      localStorage.removeItem('sweetmatch_token');
       localStorage.removeItem('authToken');
     }
   }
@@ -21,7 +24,11 @@ class ApiService {
   // Obtener token del localStorage
   getToken() {
     if (!this.token) {
-      this.token = localStorage.getItem('authToken');
+      this.token = localStorage.getItem('sweetmatch_token') || localStorage.getItem('authToken');
+      if (this.token && !localStorage.getItem('sweetmatch_token')) {
+        // Migrar automáticamente
+        localStorage.setItem('sweetmatch_token', this.token);
+      }
     }
     return this.token;
   }
@@ -112,21 +119,21 @@ class ApiService {
 
   // Métodos específicos para registro
   async registerUser(userData) {
-    return this.request('/register', {
+    return this.request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   }
 
   async checkEmailAvailability(email) {
-    return this.request('/register/check-email', {
+    return this.request('/auth/register/check-email', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   }
 
   async validateRegistrationStep(step, data) {
-    return this.request('/register/validate-step', {
+    return this.request('/auth/register/validate-step', {
       method: 'POST',
       body: JSON.stringify({ step, data }),
     });
@@ -166,7 +173,7 @@ class ApiService {
   }
 
   async getInterests() {
-    return this.request('/interests');
+    return this.request('/search/interests');
   }
 
   // Método para completar perfil después del registro
@@ -230,34 +237,34 @@ class ApiService {
 
   // Métodos para conversaciones
   async getUserConversations(userId) {
-    return this.request(`/conversations/user/${userId}`);
+    return this.request(`/chat/conversations/user/${userId}`);
   }
 
   async createOrGetConversation(user1Id, user2Id) {
-    return this.request('/conversations', {
+    return this.request('/chat/conversations', {
       method: 'POST',
       body: JSON.stringify({ user1Id, user2Id }),
     });
   }
 
   async getConversationDetails(conversationId, userId) {
-    return this.request(`/conversations/${conversationId}/details?userId=${userId}`);
+    return this.request(`/chat/conversations/${conversationId}/details?userId=${userId}`);
   }
 
   // Métodos para mensajes
   async getMessages(conversationId, page = 1, limit = 50) {
-    return this.request(`/conversations/${conversationId}/messages?page=${page}&limit=${limit}`);
+    return this.request(`/chat/conversations/${conversationId}/messages?page=${page}&limit=${limit}`);
   }
 
   async sendMessage(messageData) {
-    return this.request('/messages', {
+    return this.request('/chat/messages', {
       method: 'POST',
       body: JSON.stringify(messageData),
     });
   }
 
   async markMessagesAsRead(conversationId, userId) {
-    return this.request(`/conversations/${conversationId}/read`, {
+    return this.request(`/chat/conversations/${conversationId}/read`, {
       method: 'PUT',
       body: JSON.stringify({ userId }),
     });

@@ -48,6 +48,35 @@
   background-color: #FFEBEE;
 }
 
+/* Empty conversations state */
+.empty-conversations {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.empty-conversations p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.start-conversation-btn {
+  background: #FF6B9D;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.start-conversation-btn:hover {
+  background: #E55A87;
+  transform: translateY(-2px);
+}
+
 .conversations-list {
   flex: 1;
   overflow-y: auto;

@@ -7,6 +7,7 @@ import Login from './frontend/pages/components/Login/Login';
 import Register from './frontend/pages/components/Register/Register';
 import CompleteProfile from './frontend/pages/components/CompleteProfile/CompleteProfile';
 import Chat from './frontend/pages/components/Chat/Chat';
+import Matches from './frontend/pages/components/Matches/Matches';
 import Busqueda from './frontend/pages/components/Busqueda/Busqueda';
 import Perfil from './frontend/pages/components/Perfil/Perfil';
 import EnLinea from './frontend/pages/components/EnLinea/EnLinea';
@@ -43,6 +44,8 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/complete-profile" element={<CompleteProfile />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/messages" element={<Chat />} />
+            <Route path="/matches" element={<Matches />} />
             <Route path="/busqueda" element={<Busqueda />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/en-linea" element={<EnLinea />} />

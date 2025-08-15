@@ -8,14 +8,24 @@ import '../../styles/components/header.css';
 const Header = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   
   useEffect(() => {
-    // Usar SessionManager para obtener información del usuario
     const sessionManager = SessionManager.getInstance();
     const info = sessionManager.getUserInfo();
     setUserInfo(info);
-  }, [location]); // Re-verificar cuando cambie la ubicación
+
+    // Cargar contadores si autenticado
+    if (info?.isAuthenticated) {
+      // Carga perezosa para evitar importar pesado al inicio
+      import('../../services/ChatService').then(mod => {
+        mod.default.getUnreadCount().then(r => {
+          if (r.success) setUnreadCount(r.count || 0);
+        }).catch(() => {});
+      });
+    }
+  }, [location]);
 
   // NOTA: Header ahora se muestra en todas las páginas incluyendo login y register
   // const noHeaderPages = ['/login', '/register'];
@@ -84,7 +94,9 @@ const Header = () => {
                   >
                     <span className="nav-icon">💬</span>
                     <span className="nav-text">MENSAJES</span>
-                    <span className="notification-badge">3</span>
+                    {unreadCount > 0 && (
+                      <span className="notification-badge">{unreadCount}</span>
+                    )}
                   </Link>
                 </li>
               </>

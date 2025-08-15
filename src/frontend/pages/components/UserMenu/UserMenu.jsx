@@ -91,7 +91,7 @@ const UserMenu = () => {
             </Link>
 
             <Link 
-              to="/messages" 
+              to="/chat" 
               className="menu-item"
               onClick={handleMenuItemClick}
             >

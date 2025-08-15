@@ -1,5 +1,5 @@
 // Configuración de Google Auth para el frontend
-import { GOOGLE_CLIENT_ID } from '../../config.js';
+import { GOOGLE_CLIENT_ID } from '../config.js';
 
 /**
  * Inicializa la configuración de Google OAuth en el frontend

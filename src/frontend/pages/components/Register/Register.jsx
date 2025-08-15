@@ -277,8 +277,8 @@ const Register = () => {
                       <small style={{ color: 'red', display: 'block' }}>
                         Requisitos faltantes:
                       </small>
-                      {passwordValidation.messages.map((msg, index) => (
-                        <small key={index} style={{ color: 'red', display: 'block', marginLeft: '10px' }}>
+                      {passwordValidation.messages.map((msg) => (
+                        <small key={msg} style={{ color: 'red', display: 'block', marginLeft: '10px' }}>
                           • {msg}
                         </small>
                       ))}
@@ -470,19 +470,19 @@ const Register = () => {
           <div className="form-steps">
             <div className="step-indicator" style={{'--progress-width': `${((currentStep - 1) / 3) * 100}%`}}>
               <div className="steps-container">
-                <div className={`step-item ${currentStep === 1 ? 'active' : ''}`}>
+                <div key="step-1" className={`step-item ${currentStep === 1 ? 'active' : ''}`}>
                   <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>1</div>
                   <div className="step-title">Información Básica</div>
                 </div>
-                <div className={`step-item ${currentStep === 2 ? 'active' : ''}`}>
+                <div key="step-2" className={`step-item ${currentStep === 2 ? 'active' : ''}`}>
                   <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>2</div>
                   <div className="step-title">Preferencias</div>
                 </div>
-                <div className={`step-item ${currentStep === 3 ? 'active' : ''}`}>
+                <div key="step-3" className={`step-item ${currentStep === 3 ? 'active' : ''}`}>
                   <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>3</div>
                   <div className="step-title">Intereses</div>
                 </div>
-                <div className={`step-item ${currentStep === 4 ? 'active' : ''}`}>
+                <div key="step-4" className={`step-item ${currentStep === 4 ? 'active' : ''}`}>
                   <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>4</div>
                   <div className="step-title">Biografía</div>
                 </div>

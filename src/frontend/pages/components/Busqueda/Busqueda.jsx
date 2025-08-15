@@ -493,11 +493,11 @@ const Busqueda = () => {
           <div className="interests-filter">
             {availableInterests.map(interes => (
               <button
-                key={interes}
-                className={`interest-tag ${searchFilters.intereses.includes(interes) ? 'selected' : ''}`}
-                onClick={() => handleInterestToggle(interes)}
+                key={typeof interes === 'string' ? interes : interes.id}
+                className={`interest-tag ${searchFilters.intereses.includes(typeof interes === 'string' ? interes : interes.nombre) ? 'selected' : ''}`}
+                onClick={() => handleInterestToggle(typeof interes === 'string' ? interes : interes.nombre)}
               >
-                {interes}
+                {typeof interes === 'string' ? interes : interes.nombre}
               </button>
             ))}
           </div>
@@ -561,8 +561,8 @@ const Busqueda = () => {
                 <h4>Intereses</h4>
                 <div className="interests-list">
                   {currentProfile.intereses.map(interes => (
-                    <span key={interes} className="interest-chip">
-                      {interes}
+                    <span key={typeof interes === 'string' ? interes : interes.id} className="interest-chip">
+                      {typeof interes === 'string' ? interes : interes.nombre}
                     </span>
                   ))}
                 </div>
