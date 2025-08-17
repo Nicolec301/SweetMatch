@@ -59,16 +59,28 @@ class SearchService {
   // Buscar usuarios con filtros
   async searchUsers(filters = {}, page = 1, limit = 50) {
     try {
-      const queryParams = {
-        ...filters,
-        page,
-        limit
-      };
+      const params = new URLSearchParams();
+      // Añadir filtros simples
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') return;
+        if (key === 'intereses') return; // manejar abajo
+        params.append(key, value);
+      });
+      params.append('page', page);
+      params.append('limit', limit);
 
-      const queryString = new URLSearchParams(
-        Object.entries(queryParams)
-          .filter(([_, value]) => value !== undefined && value !== null && value !== '')
-      ).toString();
+      // Intereses: permitir array -> parámetros repetidos
+      if (filters.intereses && Array.isArray(filters.intereses) && filters.intereses.length > 0) {
+        filters.intereses.forEach(int => {
+          if (typeof int === 'string' && int.trim() !== '') {
+            params.append('intereses', int.trim());
+          }
+        });
+      } else if (typeof filters.intereses === 'string' && filters.intereses.trim() !== '') {
+        params.append('intereses', filters.intereses.trim());
+      }
+
+      const queryString = params.toString();
 
       return await this.request(`/search/users?${queryString}`);
     } catch (error) {

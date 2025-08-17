@@ -75,14 +75,13 @@ const Busqueda = () => {
           return false;
         }
 
-        // Filtro por intereses (al menos uno en común)
+        // Filtro por intereses: normalmente ya viene filtrado desde backend.
+        // Como seguridad: verificar coincidencia mínima si el backend no filtró.
         if (searchFilters.intereses.length > 0) {
-          const hasCommonInterest = searchFilters.intereses.some(interes => 
-            profile.intereses.includes(interes)
-          );
-          if (!hasCommonInterest) {
-            return false;
-          }
+          const profileInterests = (profile.intereses || []).map(i => typeof i === 'string' ? i.toLowerCase() : (i?.nombre || '').toLowerCase());
+            const selected = searchFilters.intereses.map(i => i.toLowerCase());
+            const hasCommonInterest = selected.some(s => profileInterests.includes(s));
+            if (!hasCommonInterest) return false;
         }
 
         return true;

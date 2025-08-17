@@ -21,6 +21,18 @@ class SearchController {
         limit = 20
       } = req.query;
 
+      // Normalizar intereses: puede venir como string separado por comas, string único o array
+      let interesesList = [];
+      if (Array.isArray(intereses)) {
+        interesesList = intereses.filter(i => typeof i === 'string' && i.trim() !== '').map(i => i.trim());
+      } else if (typeof intereses === 'string' && intereses.trim() !== '') {
+        // Soportar formatos: "viajes,musica" o "viajes|musica" o "viajes;musica"
+        interesesList = intereses
+          .split(/[;,|]/) // dividir por coma, punto y coma o barra vertical
+          .map(i => i.trim())
+          .filter(i => i !== '');
+      }
+
       // Convertir parámetros
       const edadMinima = parseInt(edadMin);
       const edadMaxima = parseInt(edadMax);
@@ -65,18 +77,17 @@ class SearchController {
       }
 
       // Filtro por intereses
-      if (intereses && intereses.length > 0) {
-        const interesesArray = Array.isArray(intereses) ? intereses : [intereses];
-        queryParams.push(...interesesArray);
+      if (interesesList.length > 0) {
+        queryParams.push(...interesesList.map(i => i.toLowerCase()));
         
         // Usar subconsulta para filtrar por intereses sin causar duplicados
         baseQuery += ` AND u.id IN (
           SELECT DISTINCT ui.usuario_id 
           FROM usuario_intereses ui 
           JOIN intereses i ON ui.interes_id = i.id 
-          WHERE LOWER(i.nombre) IN (${interesesArray.map((_, idx) => `$${paramCounter + idx}`).join(',')})
+          WHERE LOWER(i.nombre) IN (${interesesList.map((_, idx) => `$${paramCounter + idx}`).join(',')})
         )`;
-        paramCounter += interesesArray.length;
+        paramCounter += interesesList.length;
       }
 
       // Agregar ordenamiento y paginación
@@ -150,10 +161,9 @@ class SearchController {
         countParamCounter++;
       }
 
-      if (intereses && intereses.length > 0) {
-        const interesesArray = Array.isArray(intereses) ? intereses : [intereses];
-        countQuery += ` AND LOWER(i.nombre) IN (${interesesArray.map((_, idx) => `$${countParamCounter + idx}`).join(',')})`;
-        countParams.push(...interesesArray);
+      if (interesesList.length > 0) {
+        countQuery += ` AND LOWER(i.nombre) IN (${interesesList.map((_, idx) => `$${countParamCounter + idx}`).join(',')})`;
+        countParams.push(...interesesList.map(i => i.toLowerCase()));
       }
 
       const countResult = await UserModel.customQuery(countQuery, countParams);
@@ -173,7 +183,7 @@ class SearchController {
           edadMax: edadMaxima,
           distancia,
           genero,
-          intereses: Array.isArray(intereses) ? intereses : (intereses ? [intereses] : []),
+          intereses: interesesList,
           estado
         }
       });
